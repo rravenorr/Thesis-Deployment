@@ -1,0 +1,24 @@
+{% load static %}
+{% block content %}
+
+<!-- Full viewport height container with background image -->
+<div class="d-flex vh-100 justify-content-center align-items-center" 
+    style="background: url('{% static 'img/Malasaga Trading Corporation Background 1.jpg' %}') no-repeat center center fixed; background-size: cover;">
+
+  <!-- Semi-transparent white box to improve text/button readability -->
+  <div class="bg-white bg-opacity-75 p-5 rounded shadow text-center">
+
+    <!-- Large header -->
+    <h1 class="display-4 fw-bold mb-4">Malasaga Trading Corporation Time Tracker</h1>
+
+    <!-- Form with centered button -->
+    <form method="POST" action="{% url 'predict_face' %}">
+      {% csrf_token %}
+      <button type="submit" class="btn btn-outline-info btn-lg px-5">
+        Start Prediction
+      </button>
+    </form>
+  </div>
+</div>
+
+{% endblock %}

@@ -1,0 +1,77 @@
+{% extends "base.html" %}
+{% load static %}
+{% load widget_tweaks %}
+
+{% block content %}
+<div class="container py-5">
+    <div class="card shadow">
+        <div class="card-header bg-primary text-white">
+            <div class="d-flex align-items-center">
+                <h3 class="text-white mb-0 flex-grow-1 text-uppercase">Add Employee Attendance</h3>
+                <a class="btn btn-white text-orange" href="{% url 'view_attendance_list' %}" style="border: 1px solid #e2a25a;">
+                    <i class='bx bx-arrow-back'></i> Back to List
+                </a>
+            </div>
+        </div>
+        <div class="card-body">
+            <form method="POST">
+                {% csrf_token %}
+
+                <!-- Employee -->
+                <div class="mb-3">
+                    <label for="id_employee" class="form-label">Employee</label>
+                    {{ attendance_form.employee|add_class:"form-select" }}
+                    {% if attendance_form.employee.errors %}
+                        <div class="text-danger small">{{ attendance_form.employee.errors.0 }}</div>
+                    {% endif %}
+                </div>
+
+                <!-- Shift -->
+                <div class="mb-3">
+                    <label for="id_shift" class="form-label">Shift</label>
+                    {{ attendance_form.shift|add_class:"form-select" }}
+                    {% if attendance_form.shift.errors %}
+                        <div class="text-danger small">{{ attendance_form.shift.errors.0 }}</div>
+                    {% endif %}
+                </div>
+
+                <!-- Date -->
+                <div class="mb-3">
+                    <label for="id_date" class="form-label">Date</label>
+                    {{ attendance_form.date|add_class:"form-control" }}
+                    {% if attendance_form.date.errors %}
+                        <div class="text-danger small">{{ attendance_form.date.errors.0 }}</div>
+                    {% endif %}
+                </div>
+
+                <!-- Time In -->
+                <div class="mb-3">
+                    <label for="id_time_in" class="form-label">Time In</label>
+                    {{ attendance_form.time_in|add_class:"form-control" }}
+                    {% if attendance_form.time_in.errors %}
+                        <div class="text-danger small">{{ attendance_form.time_in.errors.0 }}</div>
+                    {% endif %}
+                </div>
+
+                <!-- Time Out -->
+                <div class="mb-3">
+                    <label for="id_time_out" class="form-label">Time Out</label>
+                    {{ attendance_form.time_out|add_class:"form-control" }}
+                    {% if attendance_form.time_out.errors %}
+                        <div class="text-danger small">{{ attendance_form.time_out.errors.0 }}</div>
+                    {% endif %}
+                </div>
+
+                <div class="d-grid mt-4">
+                    <button type="submit" class="btn btn-primary">Save Attendance</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- Flatpickr JS & CSS -->
+<link rel="stylesheet" href="{% static 'css/flatpickr.min.css' %}">
+<script src="{% static 'js/flatpickr.js' %}"></script>
+<script src="{% static 'js/flatpickr_init.js' %}"></script>
+{% endblock %}

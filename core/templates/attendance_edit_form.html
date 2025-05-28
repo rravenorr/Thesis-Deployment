@@ -1,0 +1,72 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="container-fluid" style="max-width: 1200px;">
+    <!-- Header Section -->
+    <div class="bg-primary p-4 rounded-top">
+        <div class="d-flex align-items-center">
+            <h3 class="text-white mb-0 flex-grow-1 text-uppercase">Edit Attendance Entry</h3>
+            <a class="btn btn-white text-orange" href="{% url 'view_attendance_list' %}">
+                <i class='bx bx-arrow-back'></i> Back to List
+            </a>
+        </div>
+    </div>
+
+    <!-- Form Section -->
+    <div class="bg-white p-4 rounded-bottom shadow">
+        <form method="post" action="{% url 'employee_attendance_edit' attendance.id %}" class="row g-4 mb-0">
+            {% csrf_token %}
+            <!-- Left Column -->
+            <div class="col-md-6">
+                <div class="d-flex flex-column gap-3">
+                    <div class="form-group">
+                        <label for="id_date" class="form-label fw-bold">Date</label>
+                        {{ form.date }}
+                        {% if form.date.errors %}
+                        <div class="text-danger small mt-1">{{ form.date.errors.0 }}</div>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+
+            <!-- Right Column -->
+            <div class="col-md-6">
+                <div class="form-group">
+                    <label for="id_time_in" class="form-label fw-bold">Time In</label>
+                    {{ form.time_in }}
+                    {% if form.time_in.errors %}
+                    <div class="text-danger small mt-1">{{ form.time_in.errors.0 }}</div>
+                    {% endif %}
+                </div>
+
+                <div class="form-group">
+                    <label for="id_time_out" class="form-label fw-bold">Time Out</label>
+                    {{ form.time_out }}
+                    {% if form.time_out.errors %}
+                    <div class="text-danger small mt-1">{{ form.time_out.errors.0 }}</div>
+                    {% endif %}
+                </div>
+            </div>
+
+            <!-- Buttons Row -->
+            <div class="col-12 d-flex justify-content-end gap-2">
+                    <a class="btn btn-lg btn-outline-primary" href="{% url 'view_attendance_list' %}" >
+                        Cancel
+                    </a>
+                <button type="submit" class="btn btn-success">
+                    <i class="bx bx-save"></i> Save Changes
+                </button>
+            </div>
+        </form>
+
+        <!-- Delete Form Outside Save Form But Styled Side-by-Side -->
+        <div class="d-flex justify-content-end mt-2">
+            <form method="post" action="{% url 'employee_delete_attendance' attendance.id %}" onsubmit="return confirm('Are you sure you want to delete this attendance record?');">
+                {% csrf_token %}
+                <button type="submit" class="btn btn-danger">
+                    <i class="bx bx-trash"></i> Delete
+                </button>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}

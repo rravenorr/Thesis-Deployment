@@ -1,0 +1,78 @@
+{% extends "base.html" %}
+{% load widget_tweaks %}
+
+{% block content %}
+<div class="container mt-5">
+    <div class="card shadow rounded-4">
+        <div class="card-header bg-primary text-white rounded-top-4 py-3 px-4">
+            <h4 class="mb-0">Respond to Leave Request #{{ leave.leave_number }}</h4>
+        </div>
+        <div class="card-body px-4 py-4">
+            <div class="mb-4">
+                <p><strong>Employee:</strong> {{ leave.employee }}</p>
+                <p><strong>Leave Type:</strong> {{ leave.get_leave_type_display }}</p>
+                {% comment %} <p><strong>Dates:</strong> {{ leave.start_of_leave }} to {{ leave.end_of_leave }}</p> {% endcomment %}
+                <p><strong>Dates:</strong> {{ leave.leave_dates }} ({{ leave_days }} day{% if leave_days > 1 %}s{% endif %})</p>
+                <p><strong>Reason:</strong> {{ leave.reason_for_leave }}</p>
+            </div>
+
+            <form method="post" novalidate>
+                {% csrf_token %}
+
+                <!-- Department Approval -->
+                <div class="mb-3">
+                    <label class="form-label fw-semibold" for="{{ form.department_approval.id_for_label }}">Department Approval</label>
+                    {% if user.employee.leave_departments.exists %}
+                        {% render_field form.department_approval class="form-control" %}
+                    {% else %}
+                        {% render_field form.department_approval class="form-control" disabled="disabled" %}
+                        <input type="hidden" name="{{ form.department_approval.name }}" value="{{ form.department_approval.value }}">
+                    {% endif %}
+                </div>
+
+                <!-- President Approval -->
+                <div class="mb-3">
+                    <label class="form-label fw-semibold" for="{{ form.president_approval.id_for_label }}">President Approval</label>
+                    {% if user.employee.role == "President" %}
+                        {% render_field form.president_approval class="form-control" %}
+                    {% else %}
+                        {% render_field form.president_approval class="form-control" disabled="disabled" %}
+                        <input type="hidden" name="{{ form.president_approval.name }}" value="{{ form.president_approval.value }}">
+                    {% endif %}
+                </div>
+
+                <!-- HR Approval -->
+                <div class="mb-3">
+                    <label class="form-label fw-semibold" for="{{ form.hr_approval.id_for_label }}">HR Approval</label>
+                    {% if user.employee.department.name == "Human Resources" %}
+                        {% render_field form.hr_approval class="form-control" %}
+                    {% else %}
+                        {% render_field form.hr_approval class="form-control" disabled="disabled" %}
+                        <input type="hidden" name="{{ form.hr_approval.name }}" value="{{ form.hr_approval.value }}">
+                    {% endif %}
+                </div>
+
+                <!-- Remarks or any other fields -->
+                    {% for field in form %}
+                        {% if field.name != 'department_approval' and field.name != 'hr_approval' and field.name != 'president_approval' %}
+                            <div class="mb-3">
+                                <label class="form-label fw-semibold" for="{{ field.id_for_label }}">{{ field.label }}</label>
+                                {% render_field field class="form-control" %}
+                                {% if field.errors %}
+                                    <div class="text-danger small mt-1">{{ field.errors|striptags }}</div>
+                                {% endif %}
+                            </div>
+                        {% endif %}
+                    {% endfor %}
+
+
+
+                <div class="text-end mt-4">
+                    <button type="submit" class="btn btn-success px-4">Submit Response</button>
+                    <a href="{% url 'gen_leave' %}" class="btn btn-secondary ms-2">Back</a>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}

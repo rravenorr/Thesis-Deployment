@@ -1,0 +1,247 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    {% load static %}
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Face Embedding Extraction</title>
+    <style>
+        #video{
+            transform: scaleX(-1);
+        }
+
+        #video, #overlay {
+            width: 640; /* Ensure canvas matches the video element */
+            height: 480; /* Maintain aspect ratio */
+            position: absolute; /* Overlay alignment */
+            top: 0;
+            left: 0;
+        }
+        #status-container {
+            position: relative;
+            margin-top: 10px;
+            font-family: Arial, sans-serif;
+            font-size: 18px;
+            color: black;
+            text-align: left;
+        }
+        #status {
+            padding: 10px;
+            background-color: #f3f3f3;
+            border: 1px solid #ddd;
+            display: inline-block;
+        }
+
+        #log-container {
+            position: relative;
+            margin-top: 10px;
+            font-family: Arial, sans-serif;
+            font-size: 18px;
+            color: black;
+            text-align: left;
+        }
+    
+        #log {
+            padding: 10px;
+            background-color: #f3f3f3;
+            border: 1px solid #ddd;
+            display: inline-block;
+        }
+    
+        #log li {
+            margin-bottom: 5px;
+        }
+    
+        .log-success {
+            color: green;
+        }
+    
+        .log-skipped {
+            color: orange;
+        }
+    
+        .log-error {
+            color: red;
+        }
+    </style>
+</head>
+<body>
+    <h4>Face Embedding Extraction</h4>  
+    
+    <!-- Video container -->
+    <div id="video-container" style="position: relative;">
+        <video id="video" autoplay muted playsinline></video>
+        <canvas id="overlay"></canvas>
+    </div>
+
+    <!-- Status message -->
+    <div id="status-container">
+        <p id="status">Initializing...</p>
+    </div>
+
+    <!-- Log messages -->
+    <div id="log-container">
+        <ul id="log"></ul>  <!-- List to hold the log messages -->
+    </div>
+    <script type="module">
+        import * as faceapi from "{% static 'js/face-api.esm.js' %}";
+
+        let video;
+        let currentFaceDescriptor = null;
+        let countdownInterval;
+        let countdownTime = 2; // Countdown in seconds
+
+        // Load models from the server
+        async function loadModels() {
+            const statusElement = document.getElementById("status");
+            try {
+                statusElement.textContent = "Loading models...";
+                await Promise.all([
+                    faceapi.nets.tinyFaceDetector.loadFromUri('/static/models'),
+                    faceapi.nets.faceLandmark68Net.loadFromUri('/static/models'),
+                    faceapi.nets.faceRecognitionNet.loadFromUri('/static/models')
+                ]);
+                statusElement.textContent = "Models loaded! Starting camera...";
+                console.log("Model loaded");
+            } catch (error) {
+                statusElement.textContent = "Error loading models.";
+                console.error("Model loading error:", error);
+            }
+        }
+
+        // Process video to detect faces
+        async function processVideo(video) {
+            const statusElement = document.getElementById("status");
+            const detection = await detectFace(video);
+
+            const displaySize = { width: video.videoWidth, height: video.videoHeight };
+            const canvas = document.getElementById("overlay");
+            canvas.width = displaySize.width;
+            canvas.height = displaySize.height;
+
+            const context = canvas.getContext("2d");
+            context.clearRect(0, 0, canvas.width, canvas.height);
+
+            if (!detection) {
+                statusElement.textContent = "No face detected.";
+                clearCountdown();
+                currentFaceDescriptor = null;
+            } else {
+                statusElement.textContent = `Face detected! Saving in ${countdownTime} seconds...`;
+                currentFaceDescriptor = detection.descriptor;
+
+                faceapi.draw.drawDetections(canvas, faceapi.resizeResults(detection, displaySize));
+                startCountdown(); // Start the countdown to save embedding
+            }
+
+            requestAnimationFrame(() => processVideo(video)); // Keep processing frames
+        }
+
+        // Detect face and return descriptor (embedding)
+        async function detectFace(video) {
+            return await faceapi.detectSingleFace(video, new faceapi.TinyFaceDetectorOptions({ inputSize: 224, scoreThreshold: 0.5 }))
+                .withFaceLandmarks()
+                .withFaceDescriptor();
+        }
+
+        // Start a countdown to save the embedding
+        function startCountdown() {
+            if (countdownInterval) return; // Prevent multiple countdowns
+
+            countdownInterval = setInterval(() => {
+                if (countdownTime === 0) {
+                    clearCountdown();
+                    saveEmbedding(); // Automatically save the embedding when countdown ends
+                } else {
+                    document.getElementById("status").textContent = `Face detected! Saving in ${countdownTime} seconds...`;
+                    countdownTime--;
+                }
+            }, 1000);
+        }
+
+        // Clear the countdown timer
+        function clearCountdown() {
+            clearInterval(countdownInterval);
+            countdownInterval = null;
+            countdownTime = 2; // Reset countdown time
+        }
+
+        // Save the current face descriptor to the server
+        async function saveEmbedding() {
+            if (!currentFaceDescriptor) {
+                console.warn("No face embedding available to save.");
+                return;
+            }
+
+            const embedding = Array.from(currentFaceDescriptor); // Convert to array
+            try {
+                const response = await fetch("/save_face_embedding/", {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json",
+                    },
+                    body: JSON.stringify({
+                        name: "Angelica Consing", // Replace with dynamic input if needed
+                        embedding: embedding
+                    })
+                });
+
+                const data = await response.json();
+                if (response.ok) {
+                    if (data.status === "success") {
+                        document.getElementById("status").textContent = "Face embedding saved successfully!";
+                        appendLog("Face embedding saved successfully!", "log-success");
+                    } else if (data.status === "skipped") {
+                        document.getElementById("status").textContent = "Embedding skipped: Too similar.";
+                        appendLog("Embedding skipped: Too similar.", "log-skipped");
+                    }
+                } else {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+
+                console.log("Response from server:", data);
+            } catch (error) {
+                console.error("Error saving embedding:", error);
+                document.getElementById("status").textContent = "Error saving embedding.";
+                appendLog("Error saving embedding.", "log-error");
+            }
+        }
+
+        // Append log messages to the log container (this will overwrite the logs)
+        function appendLog(message, className) {
+            const logContainer = document.getElementById("log");
+            const logItem = document.createElement("li");
+            logItem.textContent = message;
+            logItem.classList.add(className); // Apply appropriate styling class
+            logContainer.innerHTML = ''; // Clear all previous log entries
+            logContainer.appendChild(logItem);
+}
+
+        // Start the camera and initialize video processing
+        function startCamera() {
+            navigator.mediaDevices.getUserMedia({ video: true })
+                .then(stream => {
+                    video = document.getElementById('video');
+                    video.srcObject = stream;
+                    video.addEventListener('play', () => {
+                        processVideo(video); // Start processing video
+                    });
+                })
+                .catch(err => {
+                    const statusElement = document.getElementById("status");
+                    statusElement.textContent = "Error accessing camera.";
+                    console.error("Camera access error:", err);
+                });
+        }
+
+        // Initialize the app
+        async function init() {
+            await loadModels();
+            startCamera();
+        }
+
+        // Call init on page load
+        init();
+    </script>
+</body>
+</html>

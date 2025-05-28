@@ -1,0 +1,73 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block content %}
+
+<div class="container px-3">
+    <div class="row g-4">
+
+        {% for department in departments %}
+            <div class="col-12 col-md-6 ">
+                <div class="d-flex flex-column border border-dark-subtle p-3 rounded shadow h-100 bg-light">
+                    <h3>{{ department.name }}</h3>
+                    <hr>
+                    <div class="d-flex flex-column flex-md-row gap-3">
+                        <div class="flex-fill border border-dark-subtle rounded p-2">
+                            <h5>Shift Respondents:</h5>
+                            {% if department.shift_respondents.exists %}
+                                <ul class="mb-0">
+                                    {% for respondent in department.shift_respondents.all %}
+                                        <li>{{ respondent.first_name }} {{ respondent.last_name }}</li>
+                                    {% endfor %}
+                                </ul>
+                            {% else %}
+                                <ul class="mb-0">
+                                    <li>unassigned</li>
+                                </ul>
+                            {% endif %}
+                        </div>
+                        <div class="flex-fill border border-dark-subtle rounded p-2">
+                            <h5>Leave Respondents:</h5>
+                            {% if department.leave_respondents.exists %}
+                                <ul class="mb-0">
+                                    {% for respondent in department.leave_respondents.all %}
+                                        <li>{{ respondent.first_name }} {{ respondent.last_name }}</li>
+                                    {% endfor %}
+                                </ul>
+                            {% else %}
+                                <ul class="mb-0">
+                                    <li>unassigned</li>
+                                </ul>
+                            {% endif %}
+                        </div>
+                    </div>
+                    <a href="{% url 'department_respondents' department.id %}" class="btn btn-primary align-self-end mt-3 w-100">
+                        View Respondents
+                    </a>
+                </div>
+            </div>
+        {% endfor %}
+
+        <!-- Add Department Form -->
+        <div class="col-12">
+            <div class="border border-dark-subtle rounded shadow p-3 bg-light">
+                <h4>Add Department</h4>
+                <form method="post" novalidate>
+                    {% csrf_token %}
+                    {{ form.non_field_errors }}
+                    <div class="mb-3">
+                        {{ form.name.label_tag }}
+                        {{ form.name }}
+                        {% if form.name.errors %}
+                            <div class="text-danger small">{{ form.name.errors.0 }}</div>
+                        {% endif %}
+                    </div>
+                    <button type="submit" class="btn btn-success px-4">Add</button>
+                </form>
+            </div>
+        </div>
+
+    </div>
+</div>
+
+{% endblock %}

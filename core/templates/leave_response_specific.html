@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html lang="en">
+{% extends 'base.html' %}
+<head>
+    {% load static %}
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard</title>
+</head>
+<body>
+    {% block content %}
+    <div class="row px-5">
+        <div class="p-2 d-flex">
+            <div class="d-flex flex-column border border-dark-subtle p-3 rounded shadow flex-grow-1">
+                <p>Specific to the department</p>
+            </div>
+        </div>
+    </div>
+    
+    {% endblock %}
+</body>
+</html>

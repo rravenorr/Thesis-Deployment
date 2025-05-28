@@ -1,0 +1,164 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="container-fluid" style="max-width: 1200px;">
+    <!-- Header Section -->
+    <div class="bg-primary p-4 rounded-top">
+        <div class="d-flex align-items-center">
+            <h3 class="text-white mb-0 flex-grow-1 text-uppercase">Edit Employee</h3>
+            <a class="btn btn-white text-orange" href="{% url 'view_employee_list' %}">
+                <i class='bx bx-arrow-back'></i> Back to List
+            </a>
+        </div>
+    </div>
+
+    <!-- Form Section -->
+    <div class="bg-white p-4 rounded-bottom shadow">
+        <form method="post" action="{% url 'employee_edit' employee.employee_id %}" class="row g-4">
+            {% csrf_token %}
+            
+            <!-- Left Column -->
+            <div class="col-md-6">
+                <div class="d-flex flex-column gap-3">
+                    <!-- Company ID -->
+                    <div class="form-group">
+                        <label for="id_company_id" class="form-label fw-bold">Company ID</label>
+                        {{ form.company_id }}
+                        {% if form.company_id.errors %}
+                        <div class="text-danger small mt-1">
+                            {{ form.company_id.errors.0 }}
+                        </div>
+                        {% endif %}
+                    </div>
+
+                    <!-- First Name -->
+                    <div class="form-group">
+                        <label for="id_first_name" class="form-label fw-bold">First Name</label>
+                        {{ form.first_name }}
+                        {% if form.first_name.errors %}
+                        <div class="text-danger small mt-1">
+                            {{ form.first_name.errors.0 }}
+                        </div>
+                        {% endif %}
+                    </div>
+
+                    <!-- Middle Name -->
+                    <div class="form-group">
+                        <label for="id_middle_name" class="form-label fw-bold">Middle Name</label>
+                        {{ form.middle_name }}
+                        {% if form.middle_name.errors %}
+                        <div class="text-danger small mt-1">
+                            {{ form.middle_name.errors.0 }}
+                        </div>
+                        {% endif %}
+                    </div>
+
+                    <!-- Last Name -->
+                    <div class="form-group">
+                        <label for="id_last_name" class="form-label fw-bold">Last Name</label>
+                        {{ form.last_name }}
+                        {% if form.last_name.errors %}
+                        <div class="text-danger small mt-1">
+                            {{ form.last_name.errors.0 }}
+                        </div>
+                        {% endif %}
+                    </div>
+
+                    <!-- Sex -->
+                    <div class="form-group">
+                        <label for="id_sex" class="form-label fw-bold">Sex</label>
+                        {{ form.sex }}
+                        {% if form.sex.errors %}
+                        <div class="text-danger small mt-1">
+                            {{ form.sex.errors.0 }}
+                        </div>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+
+            <!-- Right Column -->
+            <div class="col-md-6">
+                <div class="d-flex flex-column gap-3">
+                    <!-- Department -->
+                    <div class="form-group">
+                        <label for="id_department" class="form-label fw-bold">Department</label>
+                        {{ form.department }}
+                        {% if form.department.errors %}
+                        <div class="text-danger small mt-1">
+                            {{ form.department.errors.0 }}
+                        </div>
+                        {% endif %}
+                    </div>
+
+                    <!-- Role -->
+                    <div class="form-group">
+                        <label for="id_role" class="form-label fw-bold">Role</label>
+                        {{ form.role }}
+                        {% if form.role.errors %}
+                        <div class="text-danger small mt-1">
+                            {{ form.role.errors.0 }}
+                        </div>
+                        {% endif %}
+                    </div>
+
+                    <!-- Contact Number -->
+                    <div class="form-group">
+                        <label for="id_contact_number" class="form-label fw-bold">Contact Number</label>
+                        {{ form.contact_number }}
+                        {% if form.contact_number.errors %}
+                        <div class="text-danger small mt-1">
+                            {{ form.contact_number.errors.0 }}
+                        </div>
+                        {% endif %}
+                    </div>
+
+                    <!-- Date Employed -->
+                    <div class="form-group">
+                        <label for="id_date_employed" class="form-label fw-bold">Date Employed</label>
+                        {{ form.date_employed }}
+                        {% if form.date_employed.errors %}
+                        <div class="text-danger small mt-1">
+                            {{ form.date_employed.errors.0 }}
+                        </div>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+
+            <!-- Form Footer -->
+            <div class="col-12">
+                <div class="d-flex justify-content-end gap-3 mt-4">
+                    <a class="btn btn-lg btn-outline-primary" href="{% url 'view_employee_list' %}" >
+                        Cancel
+                    </a>
+                    <button type="submit" class="btn btn-lg btn-primary text-white" 
+                           >
+                        Save Changes
+                    </button>
+                </div>
+            </div>
+        </form>
+        <div class="d-flex justify-content-end mt-2">
+            <form method="POST" action="{% url 'employee_delete' employee.employee_id %}" class="d-inline">
+                {% csrf_token %}
+                <button type="submit" class="btn btn-lg btn-danger"
+                        onclick="return confirm('Are you sure you want to delete this employee?');">
+                    <i class='bx bx-trash'></i> Delete Employee
+                </button>
+            </form>
+        </div>
+        <!-- Password Reset Section -->
+        <hr class="my-4">
+        <div class="d-flex justify-content-end">
+            <form method="POST" action="{% url 'reset_employee_password' employee.employee_id %}">
+                {% csrf_token %}
+                <button type="submit" class="btn btn-warning"
+                        onclick="return confirm('Reset this employee\'s password to their Company ID?');">
+                    <i class='bx bx-key'></i> Reset Password to Company ID
+                </button>
+            </form>
+        </div>
+
+    </div>
+</div>
+{% endblock %}

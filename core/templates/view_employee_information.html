@@ -1,0 +1,146 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="container-fluid" style="max-width: 1200px;">
+    <!-- Header Section -->
+    <div class="bg-primary p-4 rounded-top">
+        <div class="d-flex align-items-center">
+            <h3 class="text-white mb-0 flex-grow-1 text-uppercase">Employee Information</h3>
+            <a class="btn btn-white " href="{% url 'view_employee_list' %}">
+                <i class='bx bx-arrow-back'></i> Back to List
+            </a>
+        </div>
+    </div>
+
+    <!-- Main Content Container -->
+    <div class="bg-white p-4 rounded shadow">
+        <!-- Employee Details Card -->
+        <div class="card border-0 shadow mb-4">
+            <div class="card-body">
+                <div class="row g-4">
+                    <!-- Left Column -->
+                    <div class="col-md-6">
+                        <div class="d-flex flex-column gap-3">
+                            <div class="border-bottom pb-2">
+                                <label class="fw-bold ">Company ID</label>
+                                <p class="mb-0">{{ employee.company_id }}</p>
+                            </div>
+                            <div class="border-bottom pb-2">
+                                <label class="fw-bold ">Name</label>
+                                <p class="mb-0">
+                                    {{ employee.first_name }}
+                                    {% if employee.middle_name %}{{ employee.middle_name }}{% endif %}
+                                    {{ employee.last_name }}
+                                </p>
+                            </div>
+                            <div class="border-bottom pb-2">
+                                <label class="fw-bold ">Sex</label>
+                                <p class="mb-0">{{ employee.sex }}</p>
+                            </div>
+                            <div class="border-bottom pb-2">
+                                <label class="fw-bold ">Leave Credits</label>
+                                <p class="mb-0">Sick Leave: {{ employee.leave_credits }}</p>
+                                <p class="mb-0">Vacation Leave: {{ employee.leave_credits2 }}</p>
+                            </div>
+                            
+                        </div>
+                    </div>
+
+                    <!-- Right Column -->
+                    <div class="col-md-6">
+                        <div class="d-flex flex-column gap-3">
+                            <div class="border-bottom pb-2">
+                                <label class="fw-bold ">Department</label>
+                                <p class="mb-0">{{ employee.department }}</p>
+                            </div>
+                            <div class="border-bottom pb-2">
+                                <label class="fw-bold ">Role</label>
+                                <p class="mb-0">{{ employee.role }}</p>
+                            </div>
+                            <div class="border-bottom pb-2">
+                                <label class="fw-bold ">Contact</label>
+                                <p class="mb-0">{{ employee.contact_number }}</p>
+                            </div>
+                            <div class="border-bottom pb-2">
+                                <label class="fw-bold ">Date Employed</label>
+                                <p class="mb-0">{{ employee.date_employed|date:"M d, Y" }}</p>
+                            </div>
+                            <div class="d-flex justify-content-end">
+                                <a href="{% url 'employee_edit' employee.employee_id %}" class="btn btn-outline-primary btn-sm">
+                                    <i class='bx bx-edit me-2'></i> Edit Profile
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+
+        <!-- Schedule Section -->
+        <div class="card border-0 shadow mb-4">
+            <div class="card-header bg-primary text-white">
+                <h5 class="mb-0 text-uppercase">Work Schedule</h5>
+            </div>
+            <div class="card-body">
+                <table class="table table-bordered table-hover align-middle">
+                    <thead class="table-light">
+                        <tr>
+                            <th>Date</th>
+                            <th>Day</th> <!-- New Column -->
+                            <th>Shift Start</th>
+                            <th>Shift End</th>
+                            <th>Action</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for shift in shifts %}
+                        <tr
+                            {% if shift.shift_date == today %}
+                                class="table-success"
+                            {% elif shift.shift_date >= start_of_week and shift.shift_date <= end_of_week %}
+                                class="table-warning"
+                            {% endif %}
+                        >
+                            <td>
+                                {{ shift.shift_date }}
+                                {% if shift.shift_date == today %}
+                                    <span class="badge bg-success ms-2">Today</span>
+                                {% endif %}
+                            </td>
+                            <td>{{ shift.shift_date|date:"l" }}</td> <!-- Displays day of week like "Monday" -->
+                            <td>{{ shift.shift_start }}</td>
+                            <td>{{ shift.shift_end }}</td>
+                            {% if user.employee in user.employee.department.shift_respondents.all %}
+                            <td>
+                                {% if shift.shift_date > today %}
+
+                                    <a href="{% url 'edit_shift' shift.id %}" class="btn btn-sm btn-warning me-1">Edit Shift</a>
+                                {% else %}
+
+                                    <button class="btn btn-sm  me-1" disabled>Edit Shift</button>
+                                {% endif %}
+                            </td>
+                            {% endif %}
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+
+                </table>
+
+            </div>
+        </div>
+
+
+
+        <div class="d-flex justify-content-center">
+            <a href="{% url 'employee_dtr' employee.employee_id %}" class="btn btn-outline-primary btn-sm">
+                <i class='bx bx-edit me-2'></i> Open DTR
+            </a>
+        </div>
+    </div>
+</div>
+
+<style>
+
+</style>
+{% endblock %}

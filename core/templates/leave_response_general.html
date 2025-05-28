@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="en">
+{% extends 'base.html' %}
+<head>
+    {% load static %}
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard</title>
+</head>
+<body>
+    {% block content %}
+    <div class="row px-5">
+    <div class="p-2 d-flex w-100">
+        <div class="d-flex flex-column border border-dark-subtle p-4 rounded shadow w-100 bg-light">
+            <h4 class="mb-4">All Leave Requests</h4>
+            {% if leave_requests %}
+                <div class="table-responsive">
+                    <table class="table table-bordered table-striped align-middle">
+                        <thead class="table-primary">
+                            <tr>
+                                <th>#</th>
+                                <th>Employee</th>
+                                <th>Leave Type</th>
+                                {% comment %} <th>Start</th>
+                                <th>End</th> {% endcomment %}
+                                <th>Status</th>
+                                <th>Requested</th>
+                                <th>Action</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for leave in leave_requests %}
+                                <tr>
+                                    <td>{{ leave.leave_number }}</td>
+                                    <td>{{ leave.employee }}</td>
+                                    <td>{{ leave.get_leave_type_display }}</td>
+                                    {% comment %} <td>{{ leave.start_of_leave }}</td>
+                                    <td>{{ leave.end_of_leave }}</td> {% endcomment %}
+                                    <td>{{ leave.status }}</td>
+                                    <td>{{ leave.created_at|date:"M d, Y" }}</td>
+                                    <td>
+                                        {% if leave.deduction_applied %}
+                                            <button class="btn btn-sm btn-outline-secondary" disabled>
+                                                Finalized
+                                            </button>
+                                        {% else %}
+                                            <a href="{% url 'respond_leave_request' leave.id %}" class="btn btn-sm btn-outline-primary">
+                                                Respond
+                                            </a>
+                                        {% endif %}
+                                    </td>
+
+                                </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            {% else %}
+                <div class="text-muted">No leave requests available.</div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+    
+    {% endblock %}
+</body>
+</html>

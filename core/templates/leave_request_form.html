@@ -1,0 +1,88 @@
+{% extends "base.html" %}
+{% load widget_tweaks %}
+
+{% block content %}
+<div class="container mt-5">
+    <div class="card shadow rounded-4">
+        <div class="card-header text-white rounded-top-4 bg-primary">
+            <h4 class="mb-0">Submit Leave Request</h4>
+        </div>
+        <div class="card-body">
+
+            <div class="alert alert-info d-flex justify-content-between align-items-center">
+                <span><strong> SL Credits: {{ leave_credits }} </strong></span>
+            </div>
+
+            <div class="alert alert-info d-flex justify-content-between align-items-center">
+                <span><strong> VL Credits: {{ leave_credits2 }}</strong></span>
+            </div>
+
+            <form method="post" novalidate>
+                {% csrf_token %}
+
+                <!-- Custom Calendar Field -->
+                <div class="mb-3">
+                    <label for="leave_dates_picker" class="form-label fw-semibold">Leave Dates</label>
+                    <input type="text" id="leave_dates_picker" class="form-control" placeholder="Select one or more dates">
+
+                    <!-- Hidden input from the form -->
+                    {{ form.leave_dates }}
+
+                    {% if form.leave_dates.errors %}
+                        <div class="text-danger small mt-1">
+                            {{ form.leave_dates.errors|striptags }}
+                        </div>
+                    {% endif %}
+                </div>
+
+                <!-- Render remaining form fields -->
+                {% for field in form %}
+                    {% if field.name != "leave_dates" %}
+                        <div class="mb-3">
+                            <label for="{{ field.id_for_label }}" class="form-label fw-semibold">
+                                {{ field.label }}
+                            </label>
+                            {% if field.widget_type == "textarea" %}
+                                {{ field|add_class:"form-control" }}
+                            {% elif field.widget_type == "select" %}
+                                {{ field|add_class:"form-select" }}
+                            {% else %}
+                                {{ field|add_class:"form-control" }}
+                            {% endif %}
+                            {% if field.errors %}
+                                <div class="text-danger small mt-1">
+                                    {{ field.errors|striptags }}
+                                </div>
+                            {% endif %}
+                        </div>
+                    {% endif %}
+                {% endfor %}
+
+                <div class="text-end">
+                    <button type="submit" class="btn btn-success px-4">Submit</button>
+                    <a href="{% url 'my_leave_requests' %}" class="btn btn-outline-primary px-4">View My Leave Requests</a>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- Flatpickr Scripts -->
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
+<script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+<script>
+    flatpickr("#leave_dates_picker", {
+        mode: "multiple",
+        dateFormat: "Y-m-d",
+        onChange: function(selectedDates, dateStr) {
+            const jsonArray = dateStr
+                .split(',')
+                .map(date => date.trim())
+                .filter(Boolean);
+
+            const hiddenField = document.getElementById("id_leave_dates");
+            hiddenField.value = JSON.stringify(jsonArray);
+        }
+    });
+</script>
+{% endblock %}

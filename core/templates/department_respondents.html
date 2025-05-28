@@ -1,0 +1,65 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container mt-5">
+    <h3 class="mb-4">{{ department.name }} Department</h3>
+    
+    <form method="post" class="p-4 border rounded shadow-sm bg-white">
+        {% csrf_token %}
+
+        <div class="mb-4 p-3 border rounded">
+            <h5 class="form-label">Shift Respondents</h5>
+
+            {% if form.fields.shift_respondents.queryset.exists %}
+                {% for checkbox in form.shift_respondents %}
+                    <div class="form-check">
+                        {{ checkbox.tag }}
+                        <label class="form-check-label">{{ checkbox.choice_label }}</label>
+                    </div>
+                {% endfor %}
+            {% else %}
+                <p class="text-muted fst-italic">No available employees in this department.</p>
+            {% endif %}
+
+            {% if form.shift_respondents.errors %}
+                <div class="text-danger small">{{ form.shift_respondents.errors }}</div>
+            {% endif %}
+        </div>
+
+        <div class="mb-4 p-3 border rounded">
+            <h5 class="form-label">Leave Respondents</h5>
+
+            {% if form.fields.leave_respondents.queryset.exists %}
+                {% for checkbox in form.leave_respondents %}
+                    <div class="form-check">
+                        {{ checkbox.tag }}
+                        <label class="form-check-label">{{ checkbox.choice_label }}</label>
+                    </div>
+                {% endfor %}
+            {% else %}
+                <p class="text-muted fst-italic">No available employees in this department.</p>
+            {% endif %}
+
+            {% if form.leave_respondents.errors %}
+                <div class="text-danger small">{{ form.leave_respondents.errors }}</div>
+            {% endif %}
+        </div>
+
+        <div class="d-flex flex-wrap gap-2">
+            <button type="submit" class="btn btn-success">Save Respondents</button>
+            <a href="{% url 'view_department_list' %}" class="btn btn-secondary">Back to Departments</a>
+            {% if department.name != "Human Resources" %}
+                <a href="{% url 'delete_department' department.id %}" 
+                class="btn btn-danger ms-auto"
+                onclick="return confirm('Are you sure you want to delete this department?');">
+                Delete Department
+                </a>
+            {% endif %}
+
+        </div>
+    </form>
+    
+    
+
+</div>
+{% endblock %}

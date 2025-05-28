@@ -1,0 +1,68 @@
+{# schedule/templates/schedule_table_htmx.html #}
+{% extends "base.html" %}
+{% load static %}
+{% load render_table from django_tables2 %}
+{% load i18n %}
+{% load crispy_forms_tags %}
+
+{% block content %}
+    {% block main %}
+    <div id="schedule-list-container" class="d-flex flex-column h-100 rounded border border-secondary">
+        <!-- Top Section with Orange Background -->
+        <div class="top-section p-3 b-2 bg-primary">
+            <h1 class="text-white text-uppercase mb-4">Employee Schedule Table</h1>
+
+            {# Search Form #}
+            <div class="d-flex w-100 mb-3">
+                <form 
+                    hx-get="{% url 'view_schedule_list' %}" 
+                    hx-target="div.table-container" 
+                    hx-swap="outerHTML" 
+                    hx-indicator=".progress" 
+                    class="form-inline w-50 d-flex">
+                    <div class="flex-grow-1 d-flex">
+                        <div class="form-group flex-grow-1">
+                            {% crispy filter.form %}
+                        </div>
+                        <div>
+                            <button class="btn btn-secondary ms-2" type="submit">
+                                Search
+                            </button>
+                        </div>
+                    </div>
+                </form>
+                <div>
+                    <button 
+                        class="btn btn-secondary ms-2" 
+                        id="clear-btn">
+                        Clear
+                    </button>
+                </div>
+                <div class="ms-auto">
+                    <a class="btn btn-success" href="{% url 'create_bulk_shifts' %}">Add Employee Schedule</a>
+                </div>
+            </div>
+        </div>
+
+
+
+        {# Table Section #}
+        <div class="table-container mt-0 bg-white p-3 rounded shadow flex-grow-1 bg-white p-3">
+            {% render_table table %}
+        </div>
+    </div>
+
+    <script>
+        document.getElementById('clear-btn').addEventListener('click', function() {
+            document.querySelector('input[name="query"]').value = '';
+            document.getElementById('search-form').submit();
+        });
+        document.body.addEventListener('htmx:configRequest', (event) => {
+            const token = document.querySelector('[name=csrfmiddlewaretoken]')?.value;
+            if (token) {
+            event.detail.headers['X-CSRFToken'] = token;
+            }
+        });
+        </script>
+    {% endblock %}
+{% endblock %}

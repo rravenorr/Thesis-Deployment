@@ -1,0 +1,72 @@
+<!-- add_face_embeddings.html -->
+{% extends "base.html" %}
+{% load static %}
+
+{% block content %}
+<div class="container-fluid" style="max-width: 1200px;">
+    <!-- Header Section -->
+    <div class="bg-primary p-4 rounded-top">
+        <div class="d-flex align-items-center">
+            <h3 class="text-white mb-0 flex-grow-1 text-uppercase">Register Face Embeddings</h3>
+            <a class="btn btn-white" href="{% url 'view_face_embeddings_list' %}" >
+                <i class='bx bx-arrow-back'></i> Back to List
+            </a>
+        </div>
+    </div>
+
+    <!-- Form Section -->
+    <div class="bg-white p-4 rounded-bottom shadow">
+        <form method="POST">
+            {% csrf_token %}
+            
+            <!-- Employee Selection -->
+            <div class="form-group mb-4">
+                <label for="id_employee" class="form-label fw-bold">Employee</label>
+                {{ form.employee }}
+                {% if form.employee.errors %}
+                <div class="text-danger small mt-1">
+                    {{ form.employee.errors.0 }}
+                </div>
+                {% endif %}
+            </div>
+
+            <!-- Form Footer -->
+            <div class="d-flex justify-content-end gap-3 mt-4">
+                <a class="btn btn-lg btn-outline-primary" href="{% url 'view_face_embeddings_list' %}">
+                    Cancel
+                </a>
+                <button type="submit" class="btn btn-lg btn-primary text-white" 
+                        >
+                    <i class='bx bx-camera'></i> Start Face Capture
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+<script>
+    let cameraActive = false;
+
+    function startFaceRegistration() {
+        document.body.style.pointerEvents = "none"; // Disable user interactions
+        cameraActive = true;
+        console.log("Face registration started. Interactions disabled.");
+    }
+
+    function stopFaceRegistration() {
+        document.body.style.pointerEvents = "auto"; // Re-enable interactions
+        cameraActive = false;
+
+        window.onbeforeunload = null;
+
+        console.log("Face registration stopped. Interactions enabled.");
+    }
+
+    // **Attach Event Listener to Form Submission**
+    document.addEventListener("DOMContentLoaded", function () {
+        const form = document.querySelector("form"); // Get the form
+        form.addEventListener("submit", function (event) {
+            startFaceRegistration();
+        });
+    });
+</script>
+{% endblock %}

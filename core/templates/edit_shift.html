@@ -1,0 +1,52 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="container my-5">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="card shadow-sm">
+                <div class="card-header bg-primary text-white">
+                    <h5 class="mb-0">Edit Shift</h5>
+                </div>
+                <div class="card-body">
+                    <h6 class="mb-3 text-muted">
+                        Editing shift for: <strong>{{ shift.employee }}</strong>
+                    </h6>
+                    <p><i class="bi bi-calendar-event me-2"></i>Date: <strong>{{ shift.shift_date }}</strong></p>
+
+                    <form method="post" class="mb-4">
+                        {% csrf_token %}
+
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                {{ form.shift_start.label_tag }}
+                                {{ form.shift_start }}
+                                {% if form.shift_start.errors %}
+                                    <div class="text-danger small">{{ form.shift_start.errors }}</div>
+                                {% endif %}
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                {{ form.shift_end.label_tag }}
+                                {{ form.shift_end }}
+                                {% if form.shift_end.errors %}
+                                    <div class="text-danger small">{{ form.shift_end.errors }}</div>
+                                {% endif %}
+                            </div>
+                        </div>
+
+                        <div class="d-flex gap-2">
+                            <button type="submit" class="btn btn-primary">Save Changes</button>
+                            <a href="{% url 'employee_information' shift.employee.employee_id %}" class="btn btn-secondary">Cancel</a>
+                        </div>
+                    </form>
+
+                    <form action="{% url 'delete_shift' shift.id %}" method="post" onsubmit="return confirm('Are you sure you want to delete this shift?');">
+                        {% csrf_token %}
+                        <button type="submit" class="btn btn-danger w-100">Delete Shift</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

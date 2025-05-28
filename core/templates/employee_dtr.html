@@ -1,0 +1,76 @@
+{% extends "base.html" %}
+{% block content %}
+    <!-- Daily Time Record Section -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="p-3 border rounded shadow-sm bg-light">
+                <!-- Employee Details -->
+                <div class="mb-3">
+                    <div class="row">
+                        <div class="col-md-4">
+                            <label class="fw-bold">Employee Name</label>
+                            <p class="mb-0">{{ employee.first_name }} {{ employee.last_name }}</p>
+                        </div>
+                        <div class="col-md-4">
+                            <label class="fw-bold">Company ID</label>
+                            <p class="mb-0">{{ employee.company_id }}</p>
+                        </div>
+                        <div class="col-md-4">
+                            <label class="fw-bold">Date Range</label>
+                            <p class="mb-0">{{ start_date|date:"M d, Y" }} - {{ end_date|date:"M d, Y" }}</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- DTR Table -->
+                <div class="table-responsive">
+                    <table class="table table-bordered text-sm mt-4">
+                        <thead class="bg-light">
+                            <tr>
+                                <th class="px-4 py-2">Date</th>
+                                <th class="px-4 py-2">Day</th>
+                                <th class="px-4 py-2">Shift</th>
+                                <th class="px-4 py-2">Time-In</th>
+                                <th class="px-4 py-2">Time-Out</th>
+                                <th class="px-4 py-2">Arrival Status</th>
+                                <th class="px-4 py-2">Departure Status</th>
+                                <th class="px-4 py-2">Hours Worked</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for dtr in dtr_records %}
+                            <tr>
+                                <td class="px-4 py-2">{{ dtr.date }}</td>
+                                <td class="px-4 py-2">{{ dtr.day }}</td>
+                                <td class="px-4 py-2">{{ dtr.shift }}</td>
+                                <td class="px-4 py-2">{{ dtr.time_in }}</td>
+                                <td class="px-4 py-2">{{ dtr.time_out }}</td>
+                                <td class="px-4 py-2">{{ dtr.arrival_status }}</td>
+                                <td class="px-4 py-2">{{ dtr.departure_status }}</td>
+                                <td class="px-4 py-2">{{ dtr.worked_hours }}</td>
+                            </tr>
+                            {% empty %}
+                            <tr>
+                                <td colspan="7" class="text-center py-4">No DTR record found.</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                        <tfoot>
+                            <tr class="bg-light">
+                                <td colspan="8" class="px-4 py-2">
+                                    <a href="{% url 'employee_information' employee.employee_id %}" class="btn btn-secondary btn-sm">
+                                        Back
+                                    </a>
+                                </td>
+                            </tr>
+                            <tr class="bg-light fw-bold">
+                                <td colspan="7" class="text-end px-4 py-2">Total Hours Worked:</td>
+                                <td class="px-4 py-2">{{ total_hours }} Hours</td>
+                            </tr>
+                        </tfoot>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}

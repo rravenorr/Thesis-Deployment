@@ -1,0 +1,195 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block content %}
+<div class="container py-4">
+
+    <!-- Welcome Panel -->
+    <div class="row mb-4 ">
+        <div class="col-md-12">
+            <div class="p-4 border rounded shadow-sm bg-light border border-1 border-secondary">
+                <h4>Welcome back, {{ user.employee.first_name }} {{ user.employee.last_name }}!</h4>
+                <hr>
+                {% if user.employee.role != "President" %}
+                <p class="mb-1 fw-semibold">{{ user.employee.role }} in {{ user.employee.department.name }}</p>
+                {% endif %}
+                <p class="text-muted">Today is {{ today|date:"l, F j, Y" }}</p>
+            </div>
+        </div>
+    </div>
+
+    <div class="mt-3 w-100">
+        <a href="{% url 'account_settings' %}" class="btn btn-secondary btn-sm">Account Settings</a>
+    </div>
+
+    {% if user.employee.role != "President" %}
+    <hr>
+    <!-- Leave Credits & Quick Links -->
+    <div class="row mb-4 g-4">
+        <div class="col-md-6">
+            <div class="p-3 border rounded shadow-sm bg-light border border-1 border-secondary">
+                <h5>Leave Credits</h5>
+
+                <ul class="list-group list-group-flush border p-2 rounded border-secondary">
+                    <li class="list-group-item d-flex justify-content-between align-items-center">
+                        Regular Leave Credits
+                        <span class="badge bg-primary rounded-pill">{{ user.employee.leave_credits }}</span>
+                    </li>
+                    <li class="list-group-item d-flex justify-content-between align-items-center">
+                        Vacation/Emergency Leave Credits
+                        <span class="badge bg-success rounded-pill">{{ user.employee.leave_credits2 }}</span>
+                    </li>
+                </ul>
+            </div>
+        </div>
+        
+        <div class="col-md-6">
+            <div class="p-3 border rounded shadow-sm bg-light border border-1 border-secondary">
+                <h5>Quick Links</h5>
+
+                <ul class="list-group list-group-flush border p-2 rounded border-secondary">
+                    <li class="list-group-item"><a href="{% url 'submit_leave_request' %}">Apply for Leave</a></li>
+                    <li class="list-group-item"><a href="{% url 'my_leave_requests' %}">View Leave History</a></li>
+                </ul>
+            </div>
+        </div>
+    </div>
+
+    <!-- Recent Leave Requests -->
+    <div class="row mb-4">
+        <div class="col-md-12">
+            <div class="p-3 border rounded shadow-sm bg-light border border-1 border-secondary">
+                <h5>Recent Leave Requests</h5>
+                
+                {% if recent_leaves %}
+                    <div class="table-responsive border p-2 rounded border-secondary">
+                        <table class="table table-sm table-striped align-middle">
+                            <thead class="table-light">
+                                <tr>
+                                    <th scope="col">Date Filed</th>
+                                    <th scope="col">Type</th>
+                                    <th scope="col">Dates</th>
+                                    <th scope="col">Status</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for leave in recent_leaves %}
+                                    <tr>
+                                        <td>{{ leave.created_at|date:"M d, Y" }}</td>
+                                        <td>{{ leave.leave_type }}</td>
+                                        <td>{{ leave.leave_dates|join:", " }}</td>
+                                        <td>
+                                            <span class="badge 
+                                                {% if leave.status == 'APPROVED' %}bg-success
+                                                {% elif leave.status == 'DENIED' %}bg-danger
+                                                {% else %}bg-warning text-dark{% endif %}">
+                                                {{ leave.status }}
+                                            </span>
+                                        </td>
+                                    </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                {% else %}
+                    <p class="text-muted">No leave requests found.</p>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+
+    <!-- Weekly Schedule -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="p-3 border rounded shadow-sm bg-light border border-1 border-secondary">
+                <h5 class="mb-3">This Week's Schedule</h5>
+                <div class="row row-cols-2 row-cols-sm-3 row-cols-md-4 row-cols-lg-7 g-3">
+                    {% for day in week_days %}
+                        <div class="col">
+                            <div class="card h-100 {% if day.is_today %}bg-primary text-white{% else %}bg-light{% endif %} border border-primary">
+                                <div class="card-body p-2 text-center">
+                                    <h6 class="card-title mb-1">{{ day.label }}</h6>
+                                    <p class="card-text mb-1"><small>{{ day.date }}</small></p>
+                                    {% if day.shift_start and day.shift_end %}
+                                        <p class="card-text mb-0"><small>{{ day.shift_start }} - {{ day.shift_end }}</small></p>
+                                    {% else %}
+                                        <p class="card-text mb-2">
+                                            <small class="{% if day.is_today %}text-white-50{% else %}text-muted{% endif %}">No shift</small>
+                                        </p>
+                                    {% endif %}
+                                </div>
+                            </div>
+                        </div>
+                    {% endfor %}
+                </div>
+            </div>
+            
+        </div>
+    </div>
+    <!-- Daily Time Record Section -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="p-3 border rounded shadow-sm bg-light">
+                <!-- Employee Details -->
+                <div class="mb-3">
+                    <div class="row">
+                        <div class="col-md-4">
+                            <label class="fw-bold">Employee Name</label>
+                            <p class="mb-0">{{ employee.first_name }} {{ employee.last_name }}</p>
+                        </div>
+                        <div class="col-md-4">
+                            <label class="fw-bold">Company ID</label>
+                            <p class="mb-0">{{ employee.company_id }}</p>
+                        </div>
+                        <div class="col-md-4">
+                            <label class="fw-bold">Date Range</label>
+                            <p class="mb-0">{{ start_date|date:"M d, Y" }} - {{ end_date|date:"M d, Y" }}</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- DTR Table -->
+                <div class="table-responsive">
+                    <table class="table table-bordered text-sm mt-4">
+                        <thead class="bg-light">
+                            <tr>
+                                <th class="px-4 py-2">Date</th>
+                                <th class="px-4 py-2">Day</th>
+                                <th class="px-4 py-2">Shift</th>
+                                <th class="px-4 py-2">Time-In</th>
+                                <th class="px-4 py-2">Time-Out</th>
+                                <th class="px-4 py-2">Arrival Status</th>
+                                <th class="px-4 py-2">Departure Status</th>
+                                <th class="px-4 py-2">Hours Worked</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for dtr in dtr_records %}
+                            <tr>
+                                <td class="px-4 py-2">{{ dtr.date }}</td>
+                                <td class="px-4 py-2">{{ dtr.day }}</td>
+                                <td class="px-4 py-2">{{ dtr.shift }}</td>
+                                <td class="px-4 py-2">{{ dtr.time_in }}</td>
+                                <td class="px-4 py-2">{{ dtr.time_out }}</td>
+                                <td class="px-4 py-2">{{ dtr.arrival_status }}</td>
+                                <td class="px-4 py-2">{{ dtr.departure_status }}</td>
+                                <td class="px-4 py-2">{{ dtr.worked_hours }}</td>
+                            </tr>
+                            {% empty %}
+                            <tr>
+                                <td colspan="7" class="text-center py-4">No DTR record found.</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                        <tfoot>
+                            <tr class="bg-light fw-bold">
+                                <td colspan="7" class="text-end px-4 py-2">Total Hours Worked:</td>
+                                <td class="px-4 py-2">{{ total_hours }} Hours</td>
+                        </tfoot>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

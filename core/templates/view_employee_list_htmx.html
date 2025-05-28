@@ -1,0 +1,62 @@
+{% extends "base.html" %}
+{% load static %}
+{% load render_table from django_tables2 %}
+{% load i18n %}
+{% load crispy_forms_tags %}
+
+{% block content %}
+    {% block main %}
+    <div id="employee-list-container" class="d-flex flex-column h-100 border border-1 border-secondary rounded">
+        <!-- Top Section -->
+        <div class="p-4 rounded-top bg-primary " >
+            <h1 class="text-white text-uppercase mb-4">Employee Table</h1>
+    
+            {# Search Form #}
+            <div class="d-flex w-100 mb-3">
+                <form
+                    id="search-form"
+                    hx-get="{% url 'view_employee_list' %}"
+                    hx-target="div.table-container"
+                    hx-swap="outerHTML"
+                    hx-indicator=".progress"
+                    class="form-inline w-50 d-flex">
+                    <div class="flex-grow-1 d-flex">
+                        <div class="form-group flex-grow-1">
+                            {% crispy filter.form %}
+                        </div>
+                        <div>
+                            <button class="btn btn-secondary ms-2" type="submit">
+                                Search
+                            </button>
+                        </div>
+                    </div>
+                </form>
+                <div>
+                    <button 
+                        class="btn btn-secondary ms-2" 
+
+                        id="clear-btn">
+                        Clear
+                    </button>
+                </div>
+                <div class="ms-auto">
+                    <a class="btn btn-success" href="{% url 'add_employee' %}">Add Employee</a>
+                </div>
+            </div>
+        </div>
+        {# Table Section #}
+        <div class="table-container mt-0 bg-white p-3 rounded shadow flex-grow-1 bg-white p-3">
+            {% render_table table %}
+        </div>
+    </div>
+    <script>
+        document.getElementById('clear-btn').addEventListener('click', function() {
+            // Clear the search inputs
+            document.querySelectorAll('#search-form input').forEach(input => input.value = '');
+
+            // Trigger form submission to reset the table
+            document.getElementById('search-form').submit();
+        });
+    </script>
+    {% endblock %}
+{% endblock %}

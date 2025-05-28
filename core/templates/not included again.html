@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+
+<html lang="en">
+<head>
+    {% load static %} 
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Camera Access</title>
+    <style>
+        #video, #overlay {
+            width: 640; /* Ensure canvas matches the video element */
+            height: 480; /* Maintain aspect ratio */
+            position: absolute; /* Overlay alignment */
+            top: 0;
+            left: 0;
+            transform: scaleX(-1);
+        }
+        #status-container {
+            position: relative; /* Relative to the page layout */
+            margin-top: 10px; /* Add some space after the video feed */
+            font-family: Arial, sans-serif;
+            font-size: 18px;
+            color: black;
+            text-align: center; /* Center the status message */
+        }
+        #status {
+            padding: 10px;
+            background-color: #f3f3f3;
+            border: 1px solid #ddd;
+            display: inline-block;
+        }
+    </style>
+    <!-- <script src="{% static 'js/face-api.js' %}"></script> -->
+
+
+
+</head>
+<body>
+    <h4>Live</h4>
+    <!--Okay what the fuck, you cannot remove playsinline on the <video></video> or else it will only display black screen-->
+    <div id="video-container" style="position: relative;">
+        <video id="video" autoplay muted playsinline></video>
+        <canvas id="overlay"></canvas>
+    </div>
+    
+    <div id="status-container">
+        <p id="status">Initializing...</p>
+    </div>
+    
+    <script type="module">
+        
+        import * as faceapi from "/static/js/face-api.esm.js";
+
+        let video;
+        let faceMatcher;
+        let labeledFaceDescriptors = [];
+
+        async function loadModels() {
+            const statusElement = document.getElementById("status");
+            try {
+                statusElement.textContent = "Loading models...";
+                await Promise.all([
+                    faceapi.nets.tinyFaceDetector.loadFromUri('/static/models'),
+                    faceapi.nets.faceLandmark68Net.loadFromUri('/static/models'),
+                    faceapi.nets.faceRecognitionNet.loadFromUri('/static/models')
+                ]);
+                statusElement.textContent = "Models loaded!";
+                await loadStoredEmbeddings();
+            } catch (error) {
+                statusElement.textContent = "Error loading models.";
+                console.error("Model loading error:", error);
+            }
+        }
+
+        async function loadStoredEmbeddings() {
+            try {
+                const response = await fetch('/get_saved_face_embeddings/');
+                if (!response.ok) throw new Error(`HTTP error: ${response.status}`);
+                const savedEmbeddings = await response.json();
+                labeledFaceDescriptors = savedEmbeddings.map(entry => {
+                    const faceDescriptor = new Float32Array(entry.embedding);
+                    return new faceapi.LabeledFaceDescriptors(entry.name, [faceDescriptor]);
+                });
+                faceMatcher = new faceapi.FaceMatcher(labeledFaceDescriptors, 0.6);
+                console.log("Loaded embeddings:", labeledFaceDescriptors);
+            } catch (error) {
+                console.error("Error loading stored embeddings:", error);
+            }
+        }
+
+        async function detectFace(video) {
+            try {
+                return await faceapi.detectSingleFace(
+                    video,
+                    new faceapi.TinyFaceDetectorOptions({ inputSize: 224, scoreThreshold: 0.5 })
+                ).withFaceLandmarks().withFaceDescriptor();
+            } catch (error) {
+                console.error("Error detecting face:", error);
+                return null;
+            }
+        }
+
+        async function processVideo(video) {
+            if (!faceMatcher) return;
+            const statusElement = document.getElementById("status");
+            const detection = await detectFace(video);
+
+            const canvas = document.getElementById("overlay");
+            const context = canvas.getContext("2d");
+            context.clearRect(0, 0, canvas.width, canvas.height);
+
+            if (!detection) {
+                statusElement.textContent = "No face detected.";
+                requestAnimationFrame(() => processVideo(video));
+                return;
+            }
+
+            const displaySize = { width: video.videoWidth, height: video.videoHeight };
+            canvas.width = displaySize.width;
+            canvas.height = displaySize.height;
+            const resizedDetections = faceapi.resizeResults(detection, displaySize);
+
+            const bestMatch = faceMatcher.findBestMatch(detection.descriptor);
+            displayRecognitionResult(bestMatch);
+
+            faceapi.draw.drawDetections(canvas, resizedDetections);
+
+            requestAnimationFrame(() => processVideo(video));
+        }
+
+        function displayRecognitionResult(bestMatch) {
+            const statusElement = document.getElementById("status");
+            if (bestMatch.label === "unknown") {
+                statusElement.textContent = "Face not recognized!";
+            } else {
+                statusElement.textContent = `Recognized: ${bestMatch.label} (Confidence: ${bestMatch.distance.toFixed(2)})`;
+                console.log("Recognized face: ",bestMatch.label)
+            }
+        }
+
+        function startCamera() {
+            navigator.mediaDevices.getUserMedia({ video: true })
+                .then(stream => {
+                    video = document.getElementById('video');
+                    video.srcObject = stream;
+                    video.addEventListener('play', () => processVideo(video));
+                })
+                .catch(err => {
+                    document.getElementById("status").textContent = "Error accessing camera.";
+                    console.error("Camera access error:", err);
+                });
+        }
+
+        async function init() {
+            await loadModels();
+            startCamera();
+        }
+
+        init();
+    
+    </script>
+    
+</body>
+</html>

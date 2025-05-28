@@ -1,0 +1,8 @@
+<h2>Confirm Deletion</h2>
+<p>Are you sure you want to delete attendance record for <strong>{{ object }}</strong>?</p>
+
+<form method="post">
+    {% csrf_token %}
+    <button type="submit" class="btn btn-danger">Yes, Delete</button>
+    <a href="{% url 'view_attendance_list' %}" class="btn btn-secondary">Cancel</a>
+</form>

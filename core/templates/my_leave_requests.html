@@ -1,0 +1,43 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container mt-5">
+    <div class="card shadow rounded-4">
+        <div class="card-header bg-primary text-white rounded-top-4">
+            <h4 class="mb-0">My Leave Requests</h4>
+        </div>
+        <div class="card-body">
+            {% if leave_requests %}
+                <div class="table-responsive">
+                    <table class="table table-striped">
+                        <thead>
+                            <tr>
+                                <th>Leave #</th>
+                                <th>Leave Type</th>
+                                <th>Dates</th>
+                                <th>Status</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for leave in leave_requests %}
+                            <tr>
+                                <td>{{ leave.leave_number }}</td>
+                                <td>{{ leave.get_leave_type_display }}</td>
+                                <td>{{ leave.leave_dates }}</td>
+                                <td>{{ leave.status }}</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            {% else %}
+                <p class="text-muted">You have not submitted any leave requests.</p>
+            {% endif %}
+
+            <div class="text-end mt-4">
+                <a href="{% url 'submit_leave_request' %}" class="btn btn-secondary">Go Back</a>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

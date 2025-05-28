@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+{% load static %}
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <!-- CSS -->
+    <link rel="stylesheet" href="{% static 'bootstrap/css/bootstrap.min.css' %}">
+    <link rel="stylesheet" href="{% static 'css/flatpickr.min.css' %}">
+    <link rel="stylesheet" href="{% static 'css/base_styles.css' %}">
+
+    <!-- Boxicons -->
+    <link href="https://unpkg.com/boxicons@2.1.1/css/boxicons.min.css" rel="stylesheet">
+
+    <!-- JS -->
+    <script src="{% static 'js/htmx.min.js' %}"></script>
+    <script src="{% static 'bootstrap/js/bootstrap.bundle.min.js' %}"></script>
+    <script src="{% static 'js/flatpickr.js' %}"></script>
+    <script src="{% static 'js/flatpickr_init.js' %}"></script>
+
+    <!-- Custom Background Style -->
+    <style>
+        body {
+            background-image: url("{% static 'img/Malasaga_Background.jpg' %}");
+            background-size: cover;
+            background-position: center;
+            background-repeat: no-repeat;
+            background-attachment: fixed;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .content-wrapper {
+            background-color: rgba(255, 255, 255, 0.9); /* Slight transparency */
+            padding: 2rem;
+            border-radius: 12px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
+            width: 100%;
+            max-width: 500px;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Main Content -->
+    <div class="content-wrapper text-center">
+        <h1>Login 2</h1>
+        <!-- You can add a form or additional content here -->
+    </div>
+
+</body>
+</html>

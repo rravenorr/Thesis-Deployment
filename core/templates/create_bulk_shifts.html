@@ -1,0 +1,58 @@
+{% extends "base.html" %}
+{% load widget_tweaks %}
+{% block content %}
+
+<div class="container py-5">
+    <div class="card shadow">
+        <div class="card-header bg-primary text-white">
+            <h4 class="mb-0">Assign Multiple Shifts</h4>
+        </div>
+        <div class="card-body">
+            <form method="POST">
+                {% csrf_token %}
+                <div class="mb-3">
+                    <label for="id_employee" class="form-label">Employee</label>
+                    {{ form.employee|add_class:"form-select" }}
+                </div>
+
+                <div class="mb-3">
+                    <label for="multi-date-picker" class="form-label">Select Shift Dates</label>
+                    <input type="text" id="multi-date-picker" name="dates" class="form-control" placeholder="Choose one or more dates">
+                    {% if disabled_dates %}
+                        <div class="form-text text-danger">Dates with existing shifts are disabled.</div>
+                    {% endif %}
+                </div>
+
+                <div class="row">
+                    <div class="col-md-6 mb-3">
+                        <label for="id_shift_start" class="form-label">Shift Start</label>
+                        {{ form.shift_start|add_class:"form-control" }}
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <label for="id_shift_end" class="form-label">Shift End</label>
+                        {{ form.shift_end|add_class:"form-control" }}
+                    </div>
+                </div>
+
+                <div class="d-grid mt-4">
+                    <button type="submit" class="btn btn-primary">Assign Shifts</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- Flatpickr -->
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
+<script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+        flatpickr("#multi-date-picker", {
+            mode: "multiple",
+            dateFormat: "Y-m-d",
+            disable: {{ disabled_dates|safe }},
+            wrap: false
+        });
+    });
+</script>
+{% endblock %}
