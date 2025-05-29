@@ -1,0 +1,15 @@
+django
+htmx
+django-tables2
+django-filter
+django-htmx
+crispy-bootstrap5
+django-widget-tweaks
+numpy
+deepface
+tensorflow
+tf-keras
+mediapipe
+scikit-image
+scikit-learn
+django-cors-headers
