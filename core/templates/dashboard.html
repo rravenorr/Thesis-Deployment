@@ -31,11 +31,11 @@
 
                 <ul class="list-group list-group-flush border p-2 rounded border-secondary">
                     <li class="list-group-item d-flex justify-content-between align-items-center">
-                        Regular Leave Credits
+                        Sick Leave Credits
                         <span class="badge bg-primary rounded-pill">{{ user.employee.leave_credits }}</span>
                     </li>
                     <li class="list-group-item d-flex justify-content-between align-items-center">
-                        Vacation/Emergency Leave Credits
+                        Vacation Leave Credits
                         <span class="badge bg-success rounded-pill">{{ user.employee.leave_credits2 }}</span>
                     </li>
                 </ul>
@@ -62,33 +62,39 @@
                 
                 {% if recent_leaves %}
                     <div class="table-responsive border p-2 rounded border-secondary">
-                        <table class="table table-sm table-striped align-middle">
-                            <thead class="table-light">
-                                <tr>
-                                    <th scope="col">Date Filed</th>
-                                    <th scope="col">Type</th>
-                                    <th scope="col">Dates</th>
-                                    <th scope="col">Status</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                {% for leave in recent_leaves %}
+                        <!-- Add this wrapper around your table -->
+                        <div style="overflow-x: auto;">
+                            <table class="table table-striped table-bordered">
+                                <thead>
                                     <tr>
-                                        <td>{{ leave.created_at|date:"M d, Y" }}</td>
-                                        <td>{{ leave.leave_type }}</td>
-                                        <td>{{ leave.leave_dates|join:", " }}</td>
-                                        <td>
-                                            <span class="badge 
-                                                {% if leave.status == 'APPROVED' %}bg-success
-                                                {% elif leave.status == 'DENIED' %}bg-danger
-                                                {% else %}bg-warning text-dark{% endif %}">
-                                                {{ leave.status }}
-                                            </span>
-                                        </td>
+                                        <th>Date</th>
+                                        <th>Type</th>
+                                        <th>Leave Dates</th>
+                                        <th>Status</th>
                                     </tr>
-                                {% endfor %}
-                            </tbody>
-                        </table>
+                                </thead>
+                                <tbody>
+                                    {% for leave in recent_leaves %}
+                                        <tr>
+                                            <td>{{ leave.created_at|date:"M d, Y" }}</td>
+                                            <td>{{ leave.leave_type }}</td>
+                                            <td style="white-space: nowrap; max-width: 200px; overflow: hidden; text-overflow: ellipsis;">
+                                                <span title="{{ leave.leave_dates|join:', ' }}">{{ leave.leave_dates|join:", " }}</span>
+                                            </td>
+                                            <td>
+                                                <span class="badge 
+                                                    {% if leave.status == 'APPROVED' %}bg-success
+                                                    {% elif leave.status == 'DENIED' %}bg-danger
+                                                    {% else %}bg-warning text-dark{% endif %}">
+                                                    {{ leave.status }}
+                                                </span>
+                                            </td>
+                                        </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>  
+
                     </div>
                 {% else %}
                     <p class="text-muted">No leave requests found.</p>

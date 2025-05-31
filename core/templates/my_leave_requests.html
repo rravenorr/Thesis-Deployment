@@ -16,6 +16,7 @@
                                 <th>Leave Type</th>
                                 <th>Dates</th>
                                 <th>Status</th>
+                                <th></th>
                             </tr>
                         </thead>
                         <tbody>
@@ -23,8 +24,9 @@
                             <tr>
                                 <td>{{ leave.leave_number }}</td>
                                 <td>{{ leave.get_leave_type_display }}</td>
-                                <td>{{ leave.leave_dates }}</td>
+                                <td>{{ leave.leave_dates|join:", " }}</td>
                                 <td>{{ leave.status }}</td>
+                                <td><a href="">view</a></td>
                             </tr>
                             {% endfor %}
                         </tbody>
