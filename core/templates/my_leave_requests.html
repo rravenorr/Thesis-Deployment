@@ -26,7 +26,11 @@
                                 <td>{{ leave.get_leave_type_display }}</td>
                                 <td>{{ leave.leave_dates|join:", " }}</td>
                                 <td>{{ leave.status }}</td>
-                                <td><a href="">view</a></td>
+                                <td>
+                                    <a href="{% url 'leave_request_detail' leave.pk %}" class="btn btn-sm btn-outline-primary">
+                                        View
+                                    </a>
+                                </td>
                             </tr>
                             {% endfor %}
                         </tbody>

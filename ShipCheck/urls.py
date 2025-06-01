@@ -42,6 +42,8 @@ urlpatterns = [
     path('shift/<int:shift_id>/delete/', views.delete_shift_view, name='delete_shift'),
     path('account/settings/', AccountSettingsView.as_view(), name='account_settings'),
     path('employee/<int:pk>/reset-password/', views.reset_employee_password, name='reset_employee_password'),
+    path('leave/<int:pk>/', views.leave_request_detail, name='leave_request_detail'),
+
 
 
     

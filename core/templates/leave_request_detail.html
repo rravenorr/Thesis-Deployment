@@ -1,0 +1,20 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="container mt-5">
+    <div class="card shadow rounded-4">
+        <div class="card-header bg-primary text-white rounded-top-4">
+            <h4 class="mb-0">Leave Request Details</h4>
+        </div>
+        <div class="card-body">
+            <p><strong>Leave #:</strong> {{ leave.leave_number }}</p>
+            <p><strong>Leave Type:</strong> {{ leave.get_leave_type_display }}</p>
+            <p><strong>Dates:</strong> {{ leave.leave_dates|join:", " }}</p>
+            <p><strong>Status:</strong> {{ leave.status }}</p>
+            <p><strong>Remarks:</strong> {{ leave.remarks }}</p>
+            <div class="text-end">
+                <a href="javascript:history.back()" class="btn btn-secondary">Back</a>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

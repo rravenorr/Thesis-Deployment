@@ -57,6 +57,11 @@ from django.contrib.auth.hashers import make_password
 from .decorators import hr_only
 from core.mixins import HROnlyMixin
 
+@login_required
+def leave_request_detail(request, pk):
+    leave = get_object_or_404(LeaveRequest, pk=pk, employee=request.user.employee)
+    return render(request, 'leave_request_detail.html', {'leave': leave})
+
 @hr_only
 def reset_employee_password(request, pk):
     employee = get_object_or_404(Employee, pk=pk)
