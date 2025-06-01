@@ -2,16 +2,101 @@
 {% block content %}
 <div class="container mt-5">
     <div class="card shadow rounded-4">
-        <div class="card-header bg-primary text-white rounded-top-4">
-            <h4 class="mb-0">Leave Request Details</h4>
+        <div class="card-header bg-primary text-white rounded-top-4 d-flex justify-content-between align-items-center">
+            <h4 class="mb-0">Leave Request #{{ leave.leave_number }}</h4>
+            <span class="badge 
+                {% if leave.status == 'APPROVED' %} bg-success 
+                {% elif leave.status == 'REJECTED' or leave.status == 'DENIED' %} bg-danger 
+                {% else %} bg-warning text-dark 
+                {% endif %}">
+                {{ leave.status }}
+            </span>
         </div>
         <div class="card-body">
-            <p><strong>Leave #:</strong> {{ leave.leave_number }}</p>
-            <p><strong>Leave Type:</strong> {{ leave.get_leave_type_display }}</p>
-            <p><strong>Dates:</strong> {{ leave.leave_dates|join:", " }}</p>
-            <p><strong>Status:</strong> {{ leave.status }}</p>
-            <p><strong>Remarks:</strong> {{ leave.remarks }}</p>
+            <div class="row mb-3">
+                <div class="col-md-6">
+                    <p><strong>Leave Type:</strong> {{ leave.get_leave_type_display }}</p>
+                    <p><strong>Dates:</strong> {{ leave.leave_dates|join:", " }}</p>
+                    <p><strong>Reason:</strong> {{ leave.reason_for_leave }}</p>
+                </div>
+                <div class="col-md-6">
+
+                        <p><strong>Paid Days:</strong> 
+                            <span class="">{{ leave.paid_dates }}</span>
+                        </p>
+
+
+                        <p><strong>Unpaid Days:</strong> 
+                            <span class="">{{ leave.unpaid_dates }}</span>
+                        </p>
+
+                    <p><strong>Leave Credit Deducted:</strong> {{ leave.leave_credit_deduction }}</p>
+                </div>
+            </div>
+
+            <div class="row mb-3">
+                <div class="col-md-4 p-2">
+                    <p><strong>Department Approval:</strong> 
+                                                <div class="border p-2 rounded d-flex justify-content-center text-white
+                            {% if leave.president_approval == 'APPROVED' %} bg-success 
+                            {% elif leave.president_approval == 'REJECTED' %} bg-danger 
+                            {% else %} bg-secondary 
+                            {% endif %}">
+                        <span class="badge 
+                            {% if leave.department_approval == 'APPROVED' %} bg-success 
+                            {% elif leave.department_approval == 'REJECTED' %} bg-danger 
+                            {% else %} bg-secondary 
+                            {% endif %}">
+                            {{ leave.department_approval }}
+                        </span>
+                        </div>
+                    </p>
+                </div>
+                <div class="col-md-4 p-2">
+                    <p><strong>HR Approval:</strong> 
+                                                <div class="border p-2 rounded d-flex justify-content-center text-white
+                            {% if leave.president_approval == 'APPROVED' %} bg-success 
+                            {% elif leave.president_approval == 'REJECTED' %} bg-danger 
+                            {% else %} bg-secondary 
+                            {% endif %}">
+                        <span class="badge 
+                            {% if leave.hr_approval == 'APPROVED' %} bg-success 
+                            {% elif leave.hr_approval == 'REJECTED' %} bg-danger 
+                            {% else %} bg-secondary 
+                            {% endif %}">
+                            {{ leave.hr_approval }}
+                        </span>
+                        </div>
+                    </p>
+                </div>
+                <div class="col-md-4 p-2">
+                    <p><strong>President Approval:</strong> 
+                        <div class="border p-2 rounded d-flex justify-content-center text-white
+                            {% if leave.president_approval == 'APPROVED' %} bg-success 
+                            {% elif leave.president_approval == 'REJECTED' %} bg-danger 
+                            {% else %} bg-secondary 
+                            {% endif %}">
+                        <span class=" 
+                            {% if leave.president_approval == 'APPROVED' %} bg-success 
+                            {% elif leave.president_approval == 'REJECTED' %} bg-danger 
+                            {% else %} bg-secondary 
+                            {% endif %}">
+                            {{ leave.president_approval }}
+                        </span>
+                        </div>
+                    </p>
+                </div>
+            </div>
+
+            {% if leave.remarks %}
+                <p><strong>Remarks:</strong><br></p>
+                <div class="border p-2 border-secondary rounded mb-3">
+                    {{ leave.remarks }}
+                </div>
+            {% endif %}
+                <hr>
             <div class="text-end">
+                <a href="{% url 'leave_pdf' leave.id %}" class="btn btn-success">Save as PDF</a>
                 <a href="javascript:history.back()" class="btn btn-secondary">Back</a>
             </div>
         </div>

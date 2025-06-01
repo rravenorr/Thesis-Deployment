@@ -43,7 +43,8 @@ urlpatterns = [
     path('account/settings/', AccountSettingsView.as_view(), name='account_settings'),
     path('employee/<int:pk>/reset-password/', views.reset_employee_password, name='reset_employee_password'),
     path('leave/<int:pk>/', views.leave_request_detail, name='leave_request_detail'),
-
+    # path('leave/<int:leave_id>/pdf/', views.generate_leave_pdf, name='leave_pdf'),
+    path('leave/<int:pk>/pdf/', views.leave_pdf_view, name='leave_pdf'),
 
 
     
