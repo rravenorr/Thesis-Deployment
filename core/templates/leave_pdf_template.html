@@ -1,4 +1,6 @@
 <!DOCTYPE html>
+{% load static %}
+
 <html>
 <head>
     <meta charset="utf-8">
@@ -71,6 +73,7 @@
         <p><strong>Request No.:</strong> {{ leave.leave_number }}</p>
         {% comment %} <p><span class="status-box">{{ leave.status }}</span></p> {% endcomment %}
     </div>
+    <img src="{% static 'img/Malasaga Trading Corporation Logo.jpg' %}" alt="Company Logo" style="height: 80px;">
 
     <div class="section">
         <div class="section-title">Leave Details</div>

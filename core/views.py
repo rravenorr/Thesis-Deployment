@@ -72,63 +72,6 @@ def leave_pdf_view(request, pk):
     response['Content-Disposition'] = 'inline; filename="leave-request-{}.pdf"'.format(leave.leave_number)
     return response
 
-# def generate_leave_pdf(request, leave_id):
-#     leave = LeaveRequest.objects.get(pk=leave_id)
-
-#     response = HttpResponse(content_type='application/pdf')
-#     response['Content-Disposition'] = f'attachment; filename="LeaveRequest_{leave.leave_number}.pdf"'
-
-#     p = canvas.Canvas(response, pagesize=A4)
-#     width, height = A4
-#     y = height - 50
-
-#     p.setFont("Helvetica-Bold", 16)
-#     p.drawString(50, y, f"Leave Request #{leave.leave_number}")
-
-#     p.setFont("Helvetica", 12)
-#     y -= 30
-#     p.drawString(50, y, f"Leave Type: {leave.get_leave_type_display()}")
-
-#     y -= 20
-#     p.drawString(50, y, f"Dates: {', '.join(leave.leave_dates)}")
-
-#     y -= 20
-#     p.drawString(50, y, f"Reason: {leave.reason_for_leave}")
-
-#     y -= 20
-#     p.drawString(50, y, f"Paid Days: {leave.paid_dates}")
-
-#     y -= 20
-#     p.drawString(50, y, f"Unpaid Days: {leave.unpaid_dates}")
-
-#     y -= 20
-#     p.drawString(50, y, f"Leave Credit Deducted: {leave.leave_credit_deduction}")
-
-#     y -= 20
-#     p.drawString(50, y, f"Status: {leave.status}")
-
-#     y -= 20
-#     p.drawString(50, y, f"Department Approval: {leave.department_approval}")
-#     y -= 20
-#     p.drawString(50, y, f"HR Approval: {leave.hr_approval}")
-#     y -= 20
-#     p.drawString(50, y, f"President Approval: {leave.president_approval}")
-
-#     if leave.remarks:
-#         y -= 30
-#         p.setFont("Helvetica-Bold", 12)
-#         p.drawString(50, y, "Remarks:")
-#         y -= 20
-#         p.setFont("Helvetica", 12)
-#         text = p.beginText(50, y)
-#         for line in leave.remarks.splitlines():
-#             text.textLine(line)
-#         p.drawText(text)
-
-#     p.showPage()
-#     p.save()
-
-#     return response
 
 @login_required
 def leave_request_detail(request, pk):

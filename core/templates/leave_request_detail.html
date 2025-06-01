@@ -33,7 +33,7 @@
                     <p><strong>Leave Credit Deducted:</strong> {{ leave.leave_credit_deduction }}</p>
                 </div>
             </div>
-
+            <hr>
             <div class="row mb-3">
                 <div class="col-md-4 p-2">
                     <p><strong>Department Approval:</strong> 
@@ -96,7 +96,8 @@
             {% endif %}
                 <hr>
             <div class="text-end">
-                <a href="{% url 'leave_pdf' leave.id %}" class="btn btn-success">Save as PDF</a>
+                <a href="{% url 'leave_pdf' leave.pk %}" target="_blank"  class="btn btn-success">View Leave PDF</a>
+
                 <a href="javascript:history.back()" class="btn btn-secondary">Back</a>
             </div>
         </div>
