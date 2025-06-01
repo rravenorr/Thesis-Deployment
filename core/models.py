@@ -61,7 +61,12 @@ class LeaveRequest(models.Model):
     president_approval = models.CharField(max_length=10, choices=ApprovalStatus.choices, default=ApprovalStatus.PENDING)
     status = models.CharField(max_length=10, choices=ApprovalStatus.choices, default=ApprovalStatus.PENDING)
 
+    paid_dates = models.PositiveIntegerField(default=0)
+    unpaid_dates = models.PositiveIntegerField(default=0)
+
     created_at = models.DateTimeField(auto_now_add=True)
+    
+    
 
     def save(self, *args, **kwargs):
         # Auto-generate leave number
@@ -149,12 +154,6 @@ class Employee(models.Model):
         verbose_name = 'Employee'
         verbose_name_plural = 'Employees'
         db_table = 'employee_table'
-        constraints = [
-            models.CheckConstraint(
-                check=models.Q(leave_credits__gte=0),
-                name='positive_leave_credits',
-            ),
-        ]
 
     def clean(self):
         if not self.contact_number.isdigit():

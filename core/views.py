@@ -294,13 +294,9 @@ class EmployeeAttendanceHTMxTableView(HROnlyMixin, SingleTableMixin, FilterView)
 
 def respond_leave_request(request, pk):
     leave = get_object_or_404(LeaveRequest, pk=pk)
-    print(leave.leave_dates)
-    print(leave.leave_dates[0])
-    print(leave.leave_dates[-1])
-    # Count leave days excluding Sundays
     leave_days = len(leave.leave_dates)
 
-    # If leave is already finalized, prevent editing
+    # Prevent editing finalized leaves
     if leave.status == 'APPROVED' and leave.deduction_applied:
         messages.info(request, "This leave request has already been finalized.")
         return redirect('gen_leave')
@@ -310,30 +306,21 @@ def respond_leave_request(request, pk):
         if form.is_valid():
             leave = form.save(commit=False)
 
-            # Automatically approve HR if deduction > 0 and user is from HR
-            if request.user.employee.department.name == "Human Resources":
-                if leave.leave_credit_deduction and leave.leave_credit_deduction > 0:
-                    leave.hr_approval = 'APPROVED'
-                else:
-                    leave.hr_approval = 'PENDING'
-
-            #  overall status
+            # Determine overall status
             if leave.department_approval == 'REJECTED':
                 leave.status = 'DENIED'
             elif (leave.department_approval == 'APPROVED' and
                   leave.hr_approval == 'APPROVED' and
                   leave.president_approval == 'APPROVED'):
-                # Apply deduction only once
-                if leave.leave_credit_deduction and not leave.deduction_applied:
-                    print(f"Leave type: {leave.leave_type}")
-                    if leave.leave_type in ['VACATION', 'EMERGENCY']:
 
-                        leave.employee.leave_credits2 -= leave.leave_credit_deduction
+                # Apply deduction only once, even if deduction is 0 or causes negative result
+                if not leave.deduction_applied:
+                    if leave.leave_type in ['VACATION', 'EMERGENCY']:
+                        leave.employee.leave_credits2 -= leave.leave_credit_deduction or 0
                     else:
-                        leave.employee.leave_credits -= leave.leave_credit_deduction
+                        leave.employee.leave_credits -= leave.leave_credit_deduction or 0
                     leave.employee.save()
                     leave.deduction_applied = True
-
 
                 leave.status = 'APPROVED'
             else:
