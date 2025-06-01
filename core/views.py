@@ -313,12 +313,23 @@ def respond_leave_request(request, pk):
                   leave.hr_approval == 'APPROVED' and
                   leave.president_approval == 'APPROVED'):
 
-                # Apply deduction only once, even if deduction is 0 or causes negative result
                 if not leave.deduction_applied:
+                    total_days = len(leave.leave_dates or [])
+                    deduction = leave.leave_credit_deduction or 0  # default to 0 if None
+
+                    # Calculate paid/unpaid days based on deduction vs total days
+                    paid_count = min(deduction, total_days)
+                    unpaid_count = total_days - paid_count
+
+                    leave.paid_dates = paid_count
+                    leave.unpaid_dates = unpaid_count
+
+                    # Deduct from appropriate leave credit type
                     if leave.leave_type in ['VACATION', 'EMERGENCY']:
-                        leave.employee.leave_credits2 -= leave.leave_credit_deduction or 0
+                        leave.employee.leave_credits2 -= deduction
                     else:
-                        leave.employee.leave_credits -= leave.leave_credit_deduction or 0
+                        leave.employee.leave_credits -= deduction
+
                     leave.employee.save()
                     leave.deduction_applied = True
 
@@ -337,6 +348,9 @@ def respond_leave_request(request, pk):
         'leave': leave,
         'leave_days': leave_days
     })
+
+
+
 
 
 class EmployeeEditView(HROnlyMixin,UpdateView):
@@ -841,7 +855,7 @@ def create_dataset(name, company_id):
     # --- Video Stream ---
     print("[INFO] Initializing Video stream")
     #0 for laptop webcam, 1 for external (ONLY ME)
-    vs = VideoStream(src=cv2.CAP_DSHOW).start()
+    vs = vs = VideoStream(src=0).start()
     sampleNum = 0
 
     previous_frame = None
@@ -1107,7 +1121,7 @@ def predict_face(request):
         face_detected_time = None
         delay_duration = 1.5
 
-        vs = VideoStream(src=cv2.CAP_DSHOW).start()
+        vs = vs = VideoStream(src=0).start()
         time.sleep(1.0)
 
         recognized_employee = None

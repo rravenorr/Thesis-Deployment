@@ -95,8 +95,15 @@
                                                     {% elif leave.status == 'DENIED' %}bg-danger
                                                     {% else %}bg-warning text-dark{% endif %}">
                                                     {{ leave.status }}
+                                                    
                                                 </span>
+                                                {% if leave.unpaid_dates > 0 %}
+                                                    <span class="badge bg-danger">
+                                                        {{ leave.unpaid_dates }} unpaid days
+                                                    </span>
+                                                {% endif %}
                                             </td>
+                                            
                                         </tr>
                                     {% endfor %}
                                 </tbody>
