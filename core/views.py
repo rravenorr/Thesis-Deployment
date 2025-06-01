@@ -855,7 +855,7 @@ def create_dataset(name, company_id):
     # --- Video Stream ---
     print("[INFO] Initializing Video stream")
     #0 for laptop webcam, 1 for external (ONLY ME)
-    vs = vs = VideoStream(src=0).start()
+    vs = VideoStream(src=0).start()
     sampleNum = 0
 
     previous_frame = None
@@ -1121,7 +1121,7 @@ def predict_face(request):
         face_detected_time = None
         delay_duration = 1.5
 
-        vs = vs = VideoStream(src=0).start()
+        vs = VideoStream(src=0).start()
         time.sleep(1.0)
 
         recognized_employee = None
