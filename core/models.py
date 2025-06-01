@@ -115,6 +115,11 @@ class Employee(models.Model):
         ('President', 'President')
     ]
 
+    STATUS_CHOICES = [
+        ('Active', 'Active'),
+        ('Inactive', 'Inactive'),
+    ]
+
     employee_id = models.AutoField(primary_key=True)
     company_id = models.CharField(max_length=20, blank=False, unique=True)
     first_name = models.CharField(max_length=100, blank=False)
@@ -122,6 +127,7 @@ class Employee(models.Model):
     last_name = models.CharField(max_length=100, blank=False)
     sex = models.CharField(max_length=20, choices=SEX_CHOICES, blank=False)
     role = models.CharField(max_length=20, choices=ROLE_CHOICES, default='Regular Employee', blank=False)
+    status = models.CharField(max_length=10, choices=STATUS_CHOICES, default='Active')
 
     department = models.ForeignKey(
         Department,
@@ -155,7 +161,6 @@ class Employee(models.Model):
             raise ValidationError("Contact number must only contain digits.")
         if len(self.contact_number) < 10:
             raise ValidationError("Contact number must be at least 10 digits long.")
-
         if self.leave_credits < 0:
             raise ValidationError("Leave credits cannot be negative.")
 

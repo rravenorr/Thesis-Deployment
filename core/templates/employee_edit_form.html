@@ -122,6 +122,18 @@
                         </div>
                         {% endif %}
                     </div>
+
+                    <!-- Status -->
+                    <div class="form-group">
+                        <label for="id_status" class="form-label fw-bold">Status</label>
+                        {{ form.status }}
+                        {% if form.status.errors %}
+                        <div class="text-danger small mt-1">
+                            {{ form.status.errors.0 }}
+                        </div>
+                        {% endif %}
+                    </div>
+                    
                 </div>
             </div>
 

@@ -22,7 +22,7 @@ class EmployeeHTMxTable(tables.Table):
             'role',
             'department',
             'contact_number',
-            'user_account',
+            'status',
             'view',
         )
         attrs = {
@@ -42,9 +42,8 @@ class EmployeeHTMxTable(tables.Table):
         # Handle empty middle names gracefully
         middle = f" {record.middle_name}" if record.middle_name else ""
         return format_html(
-            '<span class="employee-name">{}{} {}</span>',
+            '<span class="employee-name">{} {}</span>',
             record.first_name,
-            middle,
             record.last_name
         )
 

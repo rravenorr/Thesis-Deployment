@@ -194,6 +194,7 @@ def submit_leave_request(request):
             leave_request = form.save(commit=False)
             leave_request.employee = employee
             leave_request.save()
+            messages.success(request, "Leave request submitted successfully.")
             return redirect('dashboard')
     else:
         form = LeaveRequestForm()
@@ -621,9 +622,7 @@ def add_employee(request):
             last_name = employee_form.cleaned_data.get('last_name')
             company_id = employee_form.cleaned_data.get('company_id')
             date_hired = employee_form.cleaned_data.get('date_employed')
-            print("date today")
-            print(date.today())
-            print(date_hired)
+
             # Calculate number of days since hired
             days_since_hired = (date.today() - date_hired).days
             print(days_since_hired)
@@ -653,6 +652,9 @@ def add_employee(request):
                 employee.leave_credits = 0
                 employee.leave_credits2 = 0
 
+            if not employee.status:
+                employee.status = 'Active'
+            
             # Create a user account
             username = f"{first_name.lower()}{last_name.lower()}".replace(" ", "")
             user = User.objects.create_user(
@@ -663,6 +665,7 @@ def add_employee(request):
             )
 
             employee.user_account = user
+
             employee.save()
 
             return redirect('view_employee_list')

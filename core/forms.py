@@ -107,7 +107,7 @@ class EmployeeForm(forms.ModelForm):
     class Meta:
         model = Employee
         exclude = ['leave_credits', 'leave_credits2'] 
-        fields = ['company_id','first_name','middle_name','last_name','sex','role','department','contact_number', 'date_employed', 'user_account',] 
+        fields = ['company_id','first_name','middle_name','last_name','sex','role','department','contact_number', 'date_employed', 'status', 'user_account',] 
         
         
     def __init__(self, *args, **kwargs):
@@ -115,7 +115,8 @@ class EmployeeForm(forms.ModelForm):
         if self.instance and self.instance.user_account:
             self.fields['user_account'].disabled = True  # Make it uneditable
         for field_name, field in self.fields.items():
-            field.widget.attrs['class'] = 'form-control'    
+            field.widget.attrs['class'] = 'form-control' 
+        self.fields['status'].required = False   
 
     def clean_company_id(self):
         company_id = self.cleaned_data.get('company_id')
