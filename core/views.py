@@ -687,7 +687,7 @@ def add_employee(request):
         'users': users,
         'departments': departments
     })
-
+@hr_only
 def add_employee_attendance(request):
     if request.method == 'POST':
         form = AttendanceForm(request.POST)
@@ -854,7 +854,7 @@ def create_dataset(name, company_id):
     # --- Video Stream ---
     print("[INFO] Initializing Video stream")
     #0 for laptop webcam, 1 for external (ONLY ME)
-    vs = VideoStream(src=0).start()
+    vs = VideoStream(src=cv2.CAP_DSHOW).start()
     sampleNum = 0
 
     previous_frame = None
@@ -1113,7 +1113,6 @@ def predict_face(request):
     mp_face_detection = mp.solutions.face_detection
     face_detection = mp_face_detection.FaceDetection(min_detection_confidence=0.5)
     if request.method == "POST":
-        vs = VideoStream(src=0).start()
         time.sleep(1.0)
 
         recognized_employee = None
@@ -1121,7 +1120,7 @@ def predict_face(request):
         face_detected_time = None
         delay_duration = 1.5
 
-        vs = VideoStream(src=0).start()
+        vs = VideoStream(src=cv2.CAP_DSHOW).start()
         time.sleep(1.0)
 
         recognized_employee = None
@@ -1256,7 +1255,7 @@ def predict_face(request):
         # Redirect or render your attendance page after exiting loop
         return redirect("camera")
     return JsonResponse({'error': 'Invalid request method'}, status=405)
-
+@hr_only
 def delete_face_embeddings(request, employee_id):
     if request.method == "DELETE":
         try:
