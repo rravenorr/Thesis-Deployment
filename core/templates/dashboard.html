@@ -29,9 +29,9 @@
         <a href="{% url 'account_settings' %}" class="btn btn-secondary btn-sm">Account Settings</a>
     </div>
 
-    {% if user.employee.department.name == "Human Resources" and user.employee.role != "President" and user.employee in user.employee.department.shift_respondents.all %}
+    {% if user.employee.role != "President" and user.employee in user.employee.department.shift_respondents.all %}
         <div class="row mb-4  d-none d-lg-block">
-            <div class="col-md-12">
+            <div class="col-md-12"> 
                 
                 <div class="p-4 border rounded shadow-sm bg-light border border-1 border-secondary">
                     <h4>Shift Respondent Function</h4>

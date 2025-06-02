@@ -271,7 +271,7 @@ def create_bulk_shifts(request):
             if overwritten_dates:
                 messages.info(request, f"Shifts updated for: {', '.join(overwritten_dates)}.")
 
-            return redirect('view_schedule_list')
+            return redirect('dashboard')
     else:
         form = ShiftBulkCreateForm(user=request.user)  # Also pass user here
 
