@@ -9,7 +9,7 @@ from django.urls import reverse
 
 
 class EmployeeHTMxTable(tables.Table):
-    full_name = tables.Column(empty_values=(), orderable=True, verbose_name='FULL NAME')
+    full_name = tables.Column(accessor='full_name', orderable=True, verbose_name='FULL NAME')
     view = tables.Column(empty_values=(), orderable=False, verbose_name='ACTIONS')
 
     class Meta:
@@ -18,7 +18,7 @@ class EmployeeHTMxTable(tables.Table):
         exclude = ('employee_id', "sex", "date_employed", "first_name", "middle_name", "last_name",'leave_credits',)
         fields = (
             'company_id',
-            'full_name',  # New combined column
+            'full_name',
             'role',
             'department',
             'contact_number',
@@ -38,20 +38,15 @@ class EmployeeHTMxTable(tables.Table):
             }
         }
 
-    def render_full_name(self, record):
-        middle = f" {record.middle_name}" if record.middle_name else ""
-        return format_html(
-            '<span class="employee-name">{}{} {}</span>',
-            record.first_name,
-            middle,
-            record.last_name
-        )
-        
+    def render_full_name(self, value):
+        return format_html('<span class="employee-name">{}</span>', value)
+
     def render_view(self, record):
         return format_html(
             '<a href="/employee/view/{}/" class="btn btn-sm btn-outline-primary me-1">View</a>',
             record.employee_id 
         )
+
         
 class EmployeeScheduleHTMxTable(tables.Table):
     full_name = tables.Column(empty_values=(), orderable=False, verbose_name='FULL NAME')

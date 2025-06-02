@@ -361,19 +361,26 @@ def custom_logout_view(request):
     logout(request) 
     return redirect('login') 
 
+from django.db.models.functions import Concat, Coalesce
 class EmployeeHTMxTableView(HROnlyMixin, SingleTableMixin, FilterView):
     table_class = EmployeeHTMxTable
-    queryset = Employee.objects.all()
     filterset_class = EmployeeFilter
     paginate_by = 10
 
+    def get_queryset(self):
+        # Annotate full_name for filtering and ordering
+        return Employee.objects.annotate(
+            full_name=Concat(
+                'first_name', Value(' '),
+                Coalesce('middle_name', Value('')), Value(' '),
+                'last_name'
+            )
+        )
+
     def get_template_names(self):
         if self.request.htmx:
-            template_name = "view_employee_list_htmx_partial.html"
-        else:
-            template_name = "view_employee_list_htmx.html"
-
-        return template_name
+            return "view_employee_list_htmx_partial.html"
+        return "view_employee_list_htmx.html"
 
 class EmployeeScheduleHTMxTableView(HROnlyMixin, SingleTableMixin, FilterView):
     table_class = EmployeeScheduleHTMxTable
