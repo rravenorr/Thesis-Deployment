@@ -354,7 +354,7 @@ class EmployeeAttendanceHTMxTableView(HROnlyMixin, SingleTableMixin, FilterView)
 
     def get_template_names(self):
         if self.request.htmx:
-            template_name = "view_attendance_list_partial.html"
+            template_name = "view_attendance_list_htmx_partial.html"
         else:
             template_name = "view_attendance_list_htmx.html"
 
