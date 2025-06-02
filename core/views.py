@@ -110,7 +110,9 @@ def leave_summary_pdf(request):
         'end_date': end_date.strftime('%Y-%m-%d')
     })
     pdf_file = HTML(string=html).write_pdf()
-
+    
+    messages.success(request, f"Leave summary PDF generated for {start_date} to {end_date}.")
+    
     response = HttpResponse(pdf_file, content_type='application/pdf')
     response['Content-Disposition'] = 'inline; filename="leave-summary.pdf"'
     return response
@@ -119,6 +121,8 @@ def leave_pdf_view(request, pk):
     leave = get_object_or_404(LeaveRequest, pk=pk)
     html = render_to_string("leave_pdf_template.html", {'leave': leave})
     pdf_file = HTML(string=html).write_pdf()
+
+    messages.success(request, f"PDF generated for leave request #{leave.leave_number}.")
 
     response = HttpResponse(pdf_file, content_type='application/pdf')
     response['Content-Disposition'] = 'inline; filename="leave-request-{}.pdf"'.format(leave.leave_number)
@@ -171,6 +175,7 @@ def edit_shift_view(request, pk):
         form = ShiftForm(request.POST, instance=shift)
         if form.is_valid():
             form.save()
+            messages.success(request, "Shift updated successfully.")
             return redirect('employee_information', pk=employee_id)
     else:
         form = ShiftForm(instance=shift)
@@ -406,8 +411,10 @@ def respond_leave_request(request, pk):
                 leave.status = 'PENDING'
 
             leave.save()
-            messages.success(request, 'Leave request updated.')
+            messages.success(request, 'Leave request updated successfully.')
             return redirect('gen_leave')
+        else:
+            messages.error(request, 'Please correct the errors below and try again.')
     else:
         form = LeaveResponseForm(instance=leave)
 
@@ -416,10 +423,6 @@ def respond_leave_request(request, pk):
         'leave': leave,
         'leave_days': leave_days
     })
-
-
-
-
 
 class EmployeeEditView(HROnlyMixin,UpdateView):
     model = Employee
@@ -433,11 +436,12 @@ class EmployeeEditView(HROnlyMixin,UpdateView):
 
     def form_valid(self, form):
         # Save the form and redirect to the success URL
-        self.object = form.save()
+        messages.success(self.request, "Employee details updated successfully.")
         return super().form_valid(form)
 
     def form_invalid(self, form):
         # If the form is invalid, render the same form with error messages
+        messages.error(self.request, "Failed to update employee details. Please fix the errors.")
         return self.render_to_response(self.get_context_data(form=form))
 
 class EmployeeDeleteView(DeleteView):
@@ -447,7 +451,20 @@ class EmployeeDeleteView(DeleteView):
 
     def get_object(self, queryset=None):
         return get_object_or_404(Employee, pk=self.kwargs['pk'])
-
+    
+    def form_valid(self, form):
+        messages.success(self.request, "Employee schedule updated successfully.")
+        return super().form_valid(form)
+    
+    
+    def form_invalid(self, form):
+        messages.error(self.request, "Failed to update employee schedule. Please fix the errors.")
+        return self.render_to_response(self.get_context_data(form=form))
+    
+    def delete(self, request, *args, **kwargs):
+        messages.success(request, "Employee deleted successfully.")
+        return super().delete(request, *args, **kwargs)
+    
 class EmployeeScheduleEditView(UpdateView):
     model = EmployeeSchedule
     form_class = EmployeeScheduleForm
@@ -465,7 +482,6 @@ class EmployeeScheduleEditView(UpdateView):
 
     def form_valid(self, form):
         # Save the form and redirect to the success URL
-        self.object = form.save()
         return super().form_valid(form)
 
     def form_invalid(self, form):
@@ -494,18 +510,16 @@ class EmployeeAttendanceEditView(UpdateView):
     success_url = reverse_lazy('view_attendance_list')
 
     def get_object(self, queryset=None):
-        # Retrieve the employee object by primary key (from the URL)
         print("Get Success")
         return get_object_or_404(Attendance, pk=self.kwargs['pk'])
 
     def form_valid(self, form):
-        # Save the form and redirect to the success URL
-        self.object = form.save()
+        messages.success(self.request, "Attendance record updated successfully.")
         print("Form save uccess")
         return super().form_valid(form)
 
     def form_invalid(self, form):
-        # If the form is invalid, render the same form with error messages
+        messages.error(self.request, "Failed to update attendance record. Please fix the errors.")
         print("Form is INVALID:", form.errors)
         return self.render_to_response(self.get_context_data(form=form))
     
@@ -516,6 +530,10 @@ class EmployeeAttendanceDeleteView(DeleteView):
 
     def get_object(self, queryset=None):
         return get_object_or_404(Attendance, pk=self.kwargs['pk'])
+    
+    def delete(self, request, *args, **kwargs):
+        messages.success(request, "Attendance record deleted successfully.")
+        return super().delete(request, *args, **kwargs)
         
 def camera_view(request):
     return render(request, 'attendance_open_camera.html')
@@ -741,9 +759,10 @@ def add_employee(request):
             employee.user_account = user
 
             employee.save()
-
+            messages.success(request, "Employee added successfully.")
             return redirect('view_employee_list')
         else:
+            messages.error(request, "There was an error in the form. Please review the fields.")
             print(employee_form.errors)
     else:
         employee_form = EmployeeForm()
@@ -762,7 +781,10 @@ def add_employee_attendance(request):
         form = AttendanceForm(request.POST)
         if form.is_valid():
             form.save()
+            messages.success(request, "Attendance record added successfully.")
             return redirect('view_attendance_list')  # Or redirect to another page if you prefer
+        else:
+            messages.error(request, "Failed to add attendance. Please check the form for errors.")
     else:
         form = AttendanceForm()
 
@@ -776,6 +798,7 @@ def employee_dtr(request, pk):
     # Get employee linked to user (your DTR code uses user_account)
     employee = get_object_or_404(Employee, employee_id=pk)
     
+
     # --- DTR integration with detailed columns ---
     today = timezone.now().date()
     start_date = today - timedelta(days=13)
@@ -895,6 +918,8 @@ def add_face_embeddings(request):
         form = FaceEmbeddingsForm()
 
     return render(request, 'add_face_embeddings.html', {'form': form})
+
+#AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
 
 # Face Recognition Module #
 
