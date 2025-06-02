@@ -5,3 +5,6 @@ __pycache__/
 *.pyd
 *.sqlite3
 staticfiles/
+core/__pycache__/forms.cpython-311.pyc
+core/__pycache__/forms.cpython-311.pyc
+core/__pycache__/tables.cpython-311.pyc

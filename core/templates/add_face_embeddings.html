@@ -65,6 +65,20 @@
     document.addEventListener("DOMContentLoaded", function () {
         const form = document.querySelector("form"); // Get the form
         form.addEventListener("submit", function (event) {
+            // Confirmation popup before submitting
+            const confirmed = confirm(
+            "Are you ready to start capturing facial features?\n" +
+            "Make sure your webcam is connected and properly positioned.\n" +
+            "Remove glasses, facemasks or any obstruction that may hinder face capture. \n" +
+            "Please ensure good lighting conditions and clear background for optimal results."
+            );
+
+
+            if (!confirmed) {
+                event.preventDefault(); // Stop form submission if canceled
+                return;
+            }
+
             startFaceRegistration();
         });
     });
