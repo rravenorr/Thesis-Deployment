@@ -1,15 +1,17 @@
 from decimal import Decimal
-from django.db.models import Q
+from django.db.models import Q, Value
+from django.db.models.functions import Concat,  Coalesce, Lower, Replace
 from django.forms import TextInput
 import django_filters
 import re
 from .models import Employee, EmployeeSchedule, Attendance
+from datetime import datetime
 
 class EmployeeFilter(django_filters.FilterSet):
     query = django_filters.CharFilter(
         method='universal_search',
         label="",
-        widget=TextInput(attrs={'placeholder' : 'Search with Company ID, Last Name, Role, or Department'}))
+        widget=TextInput(attrs={'placeholder' : 'Search with Company ID, Name, Role, or Department'}))
     
     class Meta:
         model = Employee
@@ -17,20 +19,36 @@ class EmployeeFilter(django_filters.FilterSet):
 
     
     def universal_search(self, queryset, name, value):
-        #Search
-        if value.replace(".", "", 1).isdigit():
-            # If the value is a number (like an employee_id or leave credits), filter by ID or leave credits
-            return queryset.filter(
-                Q(employee_id=value) | Q(leave_credits=value)
+        normalized_value = " ".join(value.lower().split())  # Clean the search input
+        print("Searching for:", normalized_value)
+
+        # Annotate full_name with space-normalized first, middle, last name
+        queryset = queryset.annotate(
+            full_name=Lower(
+                Concat(
+                    'first_name', Value(' '),
+                    Coalesce('middle_name', Value('')), Value(' '),
+                    'last_name'
+                )
             )
-        # Default search by first_name, last_name, department, and role
+        )
+
+        # Clean up spacing in full_name annotation
+        queryset = queryset.annotate(
+            full_name_cleaned=Lower(
+                Concat(
+                    Value(''),
+                    'full_name'
+                )
+            )
+        )
+        
+        # Do the filtering
         return queryset.filter(
             Q(company_id__icontains=value) |
-            Q(first_name__icontains=value) |
-            Q(middle_name__icontains=value) |
-            Q(last_name__icontains=value) |
-            Q(department__icontains=value) |
-            Q(role__icontains=value)
+            Q(role__icontains=value) |
+            Q(department__name__icontains=value) |
+            Q(full_name_cleaned__icontains=normalized_value)
         )
         
 class EmployeeScheduleFilter(django_filters.FilterSet):
@@ -96,7 +114,7 @@ class EmployeeFaceEmbeddingsFilter(django_filters.FilterSet):
     query = django_filters.CharFilter(
         method='universal_search',
         label="",
-        widget=TextInput(attrs={'placeholder' : 'Search with Company ID, Last Name, or Department'}))
+        widget=TextInput(attrs={'placeholder' : 'Search with Company ID, Name, or Department'}))
     
     class Meta:
         model = Employee
@@ -156,47 +174,45 @@ class AttendanceFilter(django_filters.FilterSet):
     query = django_filters.CharFilter(
         method='universal_search',
         label="",
-        widget=TextInput(attrs={'placeholder': 'Search by Name, Company ID, Department, or Date'})
+        widget=TextInput(attrs={'placeholder': 'Search by Company ID, Name, or Date'})
     )
-
     class Meta:
         model = Attendance
         fields = ['query']
 
     def universal_search(self, queryset, name, value):
-        # Split search terms while preserving quoted phrases
-        search_terms = re.findall(r'\w+|\".*?\"', value)
-        search_terms = [term.strip('"') for term in search_terms]
+        normalized_value = " ".join(value.lower().split())  # Clean the search input
+        print("Searching for:", normalized_value)
 
-        q_objects = Q()
-
-        for i in range(len(search_terms)):
-            term = search_terms[i]
-
-            # Full name combinations
-            if i + 2 < len(search_terms):
-                q_objects |= Q(
-                    employee__first_name__iexact=search_terms[i],
-                    employee__middle_name__iexact=search_terms[i+1],
-                    employee__last_name__iexact=search_terms[i+2]
+        # Annotate full_name on the related employee, concatenating first, middle, last names
+        queryset = queryset.annotate(
+            full_name=Lower(
+                Concat(
+                    'employee__first_name', Value(' '),
+                    Coalesce('employee__middle_name', Value('')), Value(' '),
+                    'employee__last_name'
                 )
-
-            if i + 1 < len(search_terms):
-                q_objects |= Q(
-                    employee__first_name__iexact=search_terms[i],
-                    employee__last_name__iexact=search_terms[i+1]
-                )
-
-            # Generic search across fields
-            q_objects |= Q(
-                Q(employee__first_name__icontains=term) |
-                Q(employee__middle_name__icontains=term) |
-                Q(employee__last_name__icontains=term) |
-                Q(employee__company_id__icontains=term) |
-                Q(employee__department__icontains=term) |
-                Q(arrival_status__icontains=term) |
-                Q(departure_status__icontains=term) |
-                Q(date__icontains=term)
             )
+        )
+        date_filter = None
+        for fmt in ('%m/%d/%Y', '%Y-%m-%d'):
+            try:
+                parsed_date = datetime.strptime(value, fmt).date()
+                date_filter = parsed_date
+                break
+            except ValueError:
+                continue
 
-        return queryset.filter(q_objects)
+        base_filter = (
+            Q(employee__company_id__icontains=value) |
+            Q(employee__role__icontains=value) |
+            Q(employee__department__name__icontains=value) |
+            Q(full_name__icontains=normalized_value)
+        )
+
+        if date_filter:
+            # If date parsed successfully, add exact date filter
+            return queryset.filter(base_filter | Q(date=date_filter))
+        else:
+            # If not a date, fallback to partial string match on date field as text
+            return queryset.filter(base_filter | Q(date__icontains=value))

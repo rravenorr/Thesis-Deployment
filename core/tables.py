@@ -9,8 +9,8 @@ from django.urls import reverse
 
 
 class EmployeeHTMxTable(tables.Table):
-    full_name = tables.Column(empty_values=(), orderable=False, verbose_name='FULL NAME')
-    view = tables.Column(empty_values=(), orderable=True, verbose_name='ACTIONS')
+    full_name = tables.Column(empty_values=(), orderable=True, verbose_name='FULL NAME')
+    view = tables.Column(empty_values=(), orderable=False, verbose_name='ACTIONS')
 
     class Meta:
         model = Employee
@@ -39,14 +39,14 @@ class EmployeeHTMxTable(tables.Table):
         }
 
     def render_full_name(self, record):
-        # Handle empty middle names gracefully
         middle = f" {record.middle_name}" if record.middle_name else ""
         return format_html(
-            '<span class="employee-name">{} {}</span>',
+            '<span class="employee-name">{}{} {}</span>',
             record.first_name,
+            middle,
             record.last_name
         )
-
+        
     def render_view(self, record):
         return format_html(
             '<a href="/employee/view/{}/" class="btn btn-sm btn-outline-primary me-1">View</a>',
@@ -178,14 +178,18 @@ class EmployeeFaceEmbeddingsHTMxTable(tables.Table):
         )
         
 class EmployeeAttendanceHTMxTable(tables.Table):
-    company_id = tables.Column(empty_values=(), verbose_name='COMPANY ID', orderable=False)
-    full_name = tables.Column(empty_values=(), verbose_name='FULL NAME', orderable=False)
+    company_id = tables.Column(empty_values=(), verbose_name='COMPANY ID', orderable=True, order_by='employee__company_id')
+    full_name = tables.Column(empty_values=(), verbose_name='FULL NAME', orderable=True,  order_by=("employee__last_name", "employee__first_name"))
     scheduled_start = tables.Column(empty_values=(), verbose_name='SCHEDULED START', orderable=False)
     scheduled_end = tables.Column(empty_values=(), verbose_name='SCHEDULED END', orderable=False)
     edit = tables.Column(empty_values=(), orderable=False, verbose_name='ACTION')
-
+    date = tables.DateColumn(orderable=True, format="m/d/Y")
+    arrival_status = tables.Column(orderable=False)
+    departure_status = tables.Column(orderable=False)
+   
     class Meta:
         model = Attendance
+        orderable = False
         template_name = "htmx_template.html"
         fields = (
             'company_id',
