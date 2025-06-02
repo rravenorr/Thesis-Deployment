@@ -1240,7 +1240,7 @@ def train_dataset(request):
 
     encoder_save_path = os.path.join(model_dir, "classes.npy")  # Use os.path.join and model_dir
     np.save(encoder_save_path, encoder.classes_)    
-
+    messages.success(request, f"Model trained successfully with {accuracy * 100:.2f}% accuracy.")
     return redirect('view_face_embeddings_list')
 
 # Load the trained SVM model and label encoder (global variables)
@@ -1285,10 +1285,6 @@ def predict_face(request):
         delay_duration = 1.5
 
         model = get_face_model()
-
-        # Flag to break the entire while loop after recording attendance
-        exit_loop = False
-
 
         # Flag to break the entire while loop after recording attendance
         exit_loop = False

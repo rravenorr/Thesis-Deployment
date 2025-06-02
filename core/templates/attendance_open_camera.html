@@ -15,16 +15,34 @@
     justify-content: center;
     align-items: center;
   }
+
+  .content-box {
+    background-color: rgba(255, 255, 255, 0.85); /* White with some transparency */
+    padding: 2.5rem;
+    border-radius: 1rem;
+    box-shadow: 0 0 20px rgba(0, 0, 0, 0.2);
+    text-align: center;
+    max-width: 500px;
+    width: 100%;
+  }
+
+  .logo-img {
+    width: 100px;
+    height: auto;
+    margin-bottom: 1rem;
+  }
 </style>
 
 <div class="full-bg">
-  <div class="bg-white bg-opacity-75 p-5 rounded shadow text-center">
-    <h1 class="display-4 fw-bold mb-4">Malasaga Trading Corporation Time Tracker</h1>
+  <div class="content-box">
+    <!-- Title -->
+    <img src="{% static 'img/Malasaga Trading Corporation Logo 2.png' %}" alt="Malasaga Title" class="img-fluid mb-4" style="max-width: 100%; height: auto;">
 
+    <!-- Button -->
     <form method="POST" action="{% url 'predict_face' %}">
       {% csrf_token %}
-      <button type="submit" class="btn btn-outline-info btn-lg px-5">
-        Start Prediction
+      <button type="submit" class="btn btn-info btn-lg px-5 py-3 fw-bold shadow" style="font-size: 1.5rem; border-radius: 2rem;">
+        ⏱️ Time-In / Time-Out
       </button>
     </form>
   </div>

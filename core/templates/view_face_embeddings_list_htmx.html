@@ -50,7 +50,15 @@
             {% render_table table %}
         </div>
     </div>
-    
+    {% if messages %}
+        {% for message in messages %}
+            <script>
+            document.addEventListener("DOMContentLoaded", function () {
+                alert("{{ message|escapejs }}");
+            });
+            </script>
+        {% endfor %}
+    {% endif %}
     <script>
         document.getElementById('clear-btn').addEventListener('click', function() {
             // Clear the search inputs
