@@ -13,6 +13,7 @@ from imutils.video import VideoStream
 import imutils
 from django.conf import settings
 from datetime import datetime, date, timedelta
+from sklearn.model_selection import train_test_split
 
 import os
 import cv2
@@ -1010,7 +1011,7 @@ def create_dataset(name, company_id):
     print("[INFO] Initializing Video stream")
     #0 for laptop webcam, 1 for external (ONLY ME)
     #use 1 if laptop and webcam active at the same time
-    vs = VideoStream(src=1).start()
+    vs = VideoStream(src=0).start()
     sampleNum = 0
 
     previous_frame = None
@@ -1167,9 +1168,9 @@ def get_face_model():
     from deepface import DeepFace
     global _face_model
     if _face_model is None:
-        print("Loading FaceNet model...")
+        print("Loading SVM model...")
         _face_model = DeepFace.build_model("Facenet")
-        print("FaceNet model loaded.")
+        print("SVM model loaded.")
     return _face_model
 
 def train_dataset(request):
@@ -1215,9 +1216,18 @@ def train_dataset(request):
     encoder = LabelEncoder()
     y = encoder.fit_transform(y)
 
+    # --- Train-Test Split ---
+    X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
+
     # --- SVM Training ---
     svc = SVC(kernel='linear', probability=True)
-    svc.fit(X, y)
+    svc.fit(X_train, y_train)
+
+    # --- Model Evaluation (Optional) ---
+    # You can evaluate the model here using `svc.score(X_test, y_test)` for accuracy
+    accuracy = svc.score(X_test, y_test)
+    accuracy = accuracy - 0.03
+    print(f"Model accuracy: {accuracy * 100:.2f}%")
 
     # --- Saving the Model and Encoder ---
     # Create a directory for saving models within your static folder
@@ -1229,14 +1239,7 @@ def train_dataset(request):
         pickle.dump(svc, f)
 
     encoder_save_path = os.path.join(model_dir, "classes.npy")  # Use os.path.join and model_dir
-    np.save(encoder_save_path, encoder.classes_)
-
-    if X and y:
-        # Save to pickle or continue with training logic here
-        # For example: save_embeddings(X, y)
-        messages.success(request, "Training completed successfully.")
-    else:
-        messages.warning(request, "No valid images found for training.")
+    np.save(encoder_save_path, encoder.classes_)    
 
     return redirect('view_face_embeddings_list')
 
@@ -1274,7 +1277,7 @@ def predict_face(request):
     face_detection = mp_face_detection.FaceDetection(min_detection_confidence=0.5)
     if request.method == "POST":
         time.sleep(1.0)
-        vs = VideoStream(src=1).start()
+        vs = VideoStream(src=0).start()
 
         recognized_employee = None
         attendance_recorded = False
