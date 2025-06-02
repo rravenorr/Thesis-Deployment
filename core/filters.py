@@ -11,18 +11,17 @@ class EmployeeFilter(django_filters.FilterSet):
     query = django_filters.CharFilter(
         method='universal_search',
         label="",
-        widget=TextInput(attrs={'placeholder' : 'Search with Company ID, Name, Role, or Department'}))
-    
+        widget=TextInput(attrs={'placeholder': 'Search with Company ID, Name, Role, or Department'})
+    )
+
     class Meta:
         model = Employee
         fields = ['query']
 
-    
     def universal_search(self, queryset, name, value):
-        normalized_value = " ".join(value.lower().split())  # Clean the search input
-        print("Searching for:", normalized_value)
+        normalized_value = " ".join(value.lower().split())  # Normalize search input (e.g., trims extra spaces)
 
-        # Annotate full_name with space-normalized first, middle, last name
+        # Annotate full_name for searching
         queryset = queryset.annotate(
             full_name=Lower(
                 Concat(
@@ -33,22 +32,12 @@ class EmployeeFilter(django_filters.FilterSet):
             )
         )
 
-        # Clean up spacing in full_name annotation
-        queryset = queryset.annotate(
-            full_name_cleaned=Lower(
-                Concat(
-                    Value(''),
-                    'full_name'
-                )
-            )
-        )
-        
-        # Do the filtering
+        # Do the filtering using lowercase version of everything
         return queryset.filter(
             Q(company_id__icontains=value) |
             Q(role__icontains=value) |
             Q(department__name__icontains=value) |
-            Q(full_name_cleaned__icontains=normalized_value)
+            Q(full_name__icontains=normalized_value)
         )
         
 class EmployeeScheduleFilter(django_filters.FilterSet):
