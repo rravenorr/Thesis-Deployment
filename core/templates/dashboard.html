@@ -25,9 +25,25 @@
         </div>
     </div>
 
-    <div class="mt-3 w-100">
+    <div class="mt-3 w-100 mb-4">
         <a href="{% url 'account_settings' %}" class="btn btn-secondary btn-sm">Account Settings</a>
     </div>
+
+    {% if user.employee.department.name == "Human Resources" and user.employee.role != "President" and user.employee in user.employee.department.shift_respondents.all %}
+        <div class="row mb-4 ">
+            <div class="col-md-12">
+                
+                <div class="p-4 border rounded shadow-sm bg-light border border-1 border-secondary">
+                    <h4>Shift Respondent Function</h4>
+                    <hr>
+                    
+                        <a class="btn btn-success" href="{% url 'create_bulk_shifts' %}">Add Employee Schedule</a>
+                    
+                </div>
+            </div>
+        </div>
+    {% endif %}
+    
 
     {% if user.employee.role != "President" %}
     <hr>

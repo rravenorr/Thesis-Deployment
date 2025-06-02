@@ -179,7 +179,7 @@ def edit_shift_view(request, pk):
 
 def create_bulk_shifts(request):
     if request.method == 'POST':
-        form = ShiftBulkCreateForm(request.POST)
+        form = ShiftBulkCreateForm(request.POST, user=request.user)  # Pass user here
         if form.is_valid():
             employee = form.cleaned_data['employee']
             shift_start = form.cleaned_data['shift_start']
@@ -214,12 +214,12 @@ def create_bulk_shifts(request):
 
             return redirect('view_schedule_list')
     else:
-        form = ShiftBulkCreateForm()
+        form = ShiftBulkCreateForm(user=request.user)  # Also pass user here
 
     return render(request, 'create_bulk_shifts.html', {
         'form': form,
-        'disabled_dates': [],  # Now unused, but you can remove this from your template too
     })
+
 
 
 def my_leave_requests(request):

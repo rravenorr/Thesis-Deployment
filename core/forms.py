@@ -33,10 +33,21 @@ class ShiftForm(forms.ModelForm):
         }
 
 class ShiftBulkCreateForm(forms.Form):
-    employee = forms.ModelChoiceField(queryset=Employee.objects.all(), label="Employee")
+    employee = forms.ModelChoiceField(queryset=Employee.objects.none(), label="Employee")
     dates = forms.CharField(widget=forms.TextInput(attrs={'id': 'multi-date-picker'}), label="Select Dates")
     shift_start = forms.TimeField(widget=forms.TimeInput(attrs={'type': 'time'}), label="Shift Start")
     shift_end = forms.TimeField(widget=forms.TimeInput(attrs={'type': 'time'}), label="Shift End")
+
+    def __init__(self, *args, user=None, **kwargs):
+        super().__init__(*args, **kwargs)
+        if user is not None:
+            try:
+                department = user.employee.department
+                self.fields['employee'].queryset = Employee.objects.filter(department=department)
+            except (AttributeError, Employee.DoesNotExist):
+                pass  # User has no linked employee or no department
+
+
 
 class RespondentSelectionForm(forms.ModelForm):
     shift_respondents = forms.ModelMultipleChoiceField(

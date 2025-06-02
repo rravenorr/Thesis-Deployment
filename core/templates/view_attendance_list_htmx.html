@@ -8,7 +8,7 @@
     {% block main %}
     <div id="face-embeddings-list-container" class="d-flex flex-column h-100">
         <!-- Top Section -->
-        <div class="p-4 rounded-top" style="background-color: #e2a25a;">
+        <div class="p-4 rounded-top" style="">
             <h1 class="text-white text-uppercase mb-4">Employee Attendance Table</h1>
     
             {# Search Form #}
@@ -25,7 +25,7 @@
                             {% crispy filter.form %}
                         </div>
                         <div>
-                            <button class="btn btn-primary ms-2" type="submit" style="background-color: white; color: #e2a25a; border: none;">
+                            <button class="btn btn-primary ms-2" type="submit" style="">
                                 Search
                             </button>
                         </div>
@@ -34,7 +34,7 @@
                 <div>
                     <button 
                         class="btn btn-primary ms-2" 
-                        style="background-color: white; color: #e2a25a; border: none;"
+                        style=""
                         id="clear-btn">
                         Clear
                     </button>
