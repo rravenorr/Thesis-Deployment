@@ -18,9 +18,6 @@
                 <div class="mb-3">
                     <label for="multi-date-picker" class="form-label">Select Shift Dates</label>
                     <input type="text" id="multi-date-picker" name="dates" class="form-control" placeholder="Choose one or more dates">
-                    {% if disabled_dates %}
-                        <div class="form-text text-danger">Dates with existing shifts are disabled.</div>
-                    {% endif %}
                 </div>
 
                 <div class="row">
@@ -50,7 +47,6 @@
         flatpickr("#multi-date-picker", {
             mode: "multiple",
             dateFormat: "Y-m-d",
-            disable: {{ disabled_dates|safe }},
             wrap: false
         });
     });

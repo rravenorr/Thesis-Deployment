@@ -985,8 +985,6 @@ def add_face_embeddings(request):
 # Path to Haarcascade file
 HAAR_CASCADE_PATH = os.path.join(settings.BASE_DIR, "core", "static", "haarcascades", "haarcascade_frontalface_default.xml")
 
-import tkinter as tk
-from tkinter import messagebox
 
 def create_dataset(name, company_id):
     
