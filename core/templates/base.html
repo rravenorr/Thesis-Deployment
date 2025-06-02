@@ -21,6 +21,9 @@
     <script src="{% static 'js/flatpickr_init.js' %}"></script>
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
     <style>
+        html{
+            height: 100%;
+        }
         body {
             font-family: 'Poppins', sans-serif;
             font-size: 1rem;
@@ -28,7 +31,6 @@
             background-color:rgb(228, 233, 240);
         }
         
-
         h1, h2, h3, h4, h5, h6 {
             font-weight: 600;
             letter-spacing: -0.5px;
@@ -41,7 +43,36 @@
         .form-control {
             font-size: 0.95rem;
         }
+        .full-bg {
+            background: url("{% static 'img/Malasaga_Background.jpg' %}") no-repeat center center fixed;
+            background-size: cover;
+            height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
 
+        .login-box {
+            background-color: rgba(255, 255, 255, 0.85);
+            padding: 2.5rem;
+            border-radius: 1rem;
+            box-shadow: 0 0 20px rgba(0, 0, 0, 0.2);
+            text-align: center;
+            width: 100%;
+            max-width: 400px;
+        }
+
+        .logo-img {
+            width: 100px;
+            height: auto;
+            margin-bottom: 1rem;
+        }
+
+        .title-img {
+            max-width: 100%;
+            height: auto;
+            margin-bottom: 2rem;
+        }
     </style>
 
 </head>
@@ -81,25 +112,16 @@
                     {% if user.employee.role != "President" and user.employee.department.name == "Human Resources" %}
                     <li class="nav-item dropdown d-none d-lg-block">
                         <a class="nav-link dropdown-toggle py-1" href="#" id="manageEmpDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-                            Management
+                            Operations
                         </a>
                         <ul class="dropdown-menu">
                             <li><a class="dropdown-item" href="{% url 'view_employee_list' %}">View Employee List</a></li>
                             <li><a class="dropdown-item" href="{% url 'view_department_list' %}">View Department List</a></li>
+                            <li><a class="dropdown-item" href="{% url 'view_face_embeddings_list' %}">View Face Embeddings List</a></li>
                         </ul>
                     </li>
                     {% endif %}
 
-                    {% if user.employee.department.name == "Human Resources" and user.employee.role != "President" and user.employee in user.employee.department.shift_respondents.all %}
-                        <li class="nav-item dropdown d-none d-lg-block">
-                            <a class="nav-link dropdown-toggle py-1" href="#" id="manageShftDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-                                Manage Shifts
-                            </a>
-                            <ul class="dropdown-menu">
-                                <li><a class="dropdown-item" href="{% url 'view_schedule_list' %}">View Shift Schedule</a></li>
-                            </ul>
-                        </li>
-                    {% endif %}
 
 
                     <!-- Leave Requests (for HR, President, or authorized) -->
@@ -151,27 +173,32 @@
 
     {% else %}
     <!-- Unauthenticated Login Form -->
-    <div class="d-flex justify-content-center align-items-center vh-100">
-        <div class="card p-4 shadow" style="min-width: 300px; max-width: 400px;">
-            <h4 class="mb-3 text-center">Login</h4>
+    <div class="full-bg">
+        <div class="login-box">
+            <!-- Logo -->
+            <img src="{% static 'img/Malasaga Trading Corporation Logo.jpg' %}" alt="Logo" class="logo-img">
+
+            <!-- Login Form -->
             <form method="POST" action="{% url 'login' %}">
-                {% csrf_token %}
-                {% if form.errors %}
-                    <div class="alert alert-danger">
-                        Invalid username or password.
-                    </div>
-                {% endif %}
-                <div class="mb-3">
-                    <label for="id_username" class="form-label">Username</label>
-                    <input type="text" name="username" autofocus required id="id_username" class="form-control">
+            {% csrf_token %}
+            {% if form.errors %}
+                <div class="alert alert-danger">
+                Invalid username or password.
                 </div>
-                <div class="mb-3">
-                    <label for="id_password" class="form-label">Password</label>
-                    <input type="password" name="password" required id="id_password" class="form-control">
-                </div>
-                <div class="d-grid">
-                    <button type="submit" class="btn btn-primary">Log In</button>
-                </div>
+            {% endif %}
+
+            <div class="mb-3 text-start">
+                <label for="id_username" class="form-label">Username</label>
+                <input type="text" name="username" autofocus required id="id_username" class="form-control">
+            </div>
+            <div class="mb-4 text-start">
+                <label for="id_password" class="form-label">Password</label>
+                <input type="password" name="password" required id="id_password" class="form-control">
+            </div>
+
+            <div class="d-grid">
+                <button type="submit" class="btn btn-primary btn-lg fw-bold">Log In</button>
+            </div>
             </form>
         </div>
     </div>
