@@ -63,6 +63,59 @@ from django.template.loader import render_to_string
 from weasyprint import HTML
 from django.http import HttpResponse
 from django.utils.dateparse import parse_date
+from collections import defaultdict
+
+def download_dtr_pdf(request, employee_id, start_date, end_date):
+    employee = get_object_or_404(Employee, pk=employee_id)
+    
+    start = datetime.strptime(start_date, "%Y-%m-%d").date()
+    end = datetime.strptime(end_date, "%Y-%m-%d").date()
+    
+    # Get existing records in the range
+    dtr_records = Attendance.objects.filter(
+        employee=employee,
+        date__range=[start, end]
+    ).select_related('shift').order_by('date')
+
+    # Map DTR records by date
+    dtr_map = {record.date: record for record in dtr_records}
+    
+    # Build full date list and map to either a real record or a placeholder
+    complete_records = []
+    current_date = start
+    while current_date <= end:
+        if current_date in dtr_map:
+            complete_records.append(dtr_map[current_date])
+        else:
+            # Create a dummy object with placeholder values
+            complete_records.append({
+                'date': current_date,
+                'shift': None,
+                'time_in': None,
+                'time_out': None,
+                'arrival_status': 'No Shift',
+                'departure_status': 'No Shift',
+                'worked_hours': 0,
+            })
+        current_date += timedelta(days=1)
+
+    # Calculate total worked hours only from actual records
+    total_hours = sum([record.worked_hours() if hasattr(record, 'worked_hours') else 0 for record in complete_records])
+
+    html_string = render_to_string('dtr_pdf_template.html', {
+        'employee': employee,
+        'dtr_records': complete_records,
+        'start_date': start,
+        'end_date': end,
+        'total_hours': total_hours,
+    })
+
+    html = HTML(string=html_string, base_url=request.build_absolute_uri())
+    pdf_file = html.write_pdf()
+
+    response = HttpResponse(pdf_file, content_type='application/pdf')
+    response['Content-Disposition'] = f'inline; filename="{employee.company_id}_DTR_{start_date}_to_{end_date}.pdf"'
+    return response
 
 def leave_summary_pdf(request):
     start_date = parse_date(request.GET.get('start_date'))

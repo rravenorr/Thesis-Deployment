@@ -67,6 +67,17 @@
                                 <td colspan="7" class="text-end px-4 py-2">Total Hours Worked:</td>
                                 <td class="px-4 py-2">{{ total_hours }} Hours</td>
                             </tr>
+                            <tr class="bg-light">
+                                <td colspan="8" class="px-4 py-2 text-end">
+                                    <a href="{% url 'download_dtr_pdf' employee.employee_id start_date end_date %}" class="btn btn-primary btn-sm">
+                                        Download DTR as PDF
+                                    </a>
+                                    <a href="{% url 'employee_information' employee.employee_id %}" class="btn btn-secondary btn-sm">
+                                        Back
+                                    </a>
+                                </td>
+                            </tr>
+
                         </tfoot>
                     </table>
                 </div>
