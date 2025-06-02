@@ -959,7 +959,7 @@ def create_dataset(name, company_id):
     print("[INFO] Initializing Video stream")
     #0 for laptop webcam, 1 for external (ONLY ME)
     #use 1 if laptop and webcam active at the same time
-    vs = VideoStream(src=0).start()
+    vs = VideoStream(src=1).start()
     sampleNum = 0
 
     previous_frame = None
@@ -1223,7 +1223,7 @@ def predict_face(request):
     face_detection = mp_face_detection.FaceDetection(min_detection_confidence=0.5)
     if request.method == "POST":
         time.sleep(1.0)
-        vs = VideoStream(src=0).start()
+        vs = VideoStream(src=1).start()
 
         recognized_employee = None
         attendance_recorded = False
