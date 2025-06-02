@@ -911,9 +911,15 @@ def add_face_embeddings(request):
             middle = f"{employee.middle_name}" if employee.middle_name else ""
             name = f"{employee.first_name} {middle} {employee.last_name}"
             company_id = employee.company_id
-            print(f"Names: {name} and Company ID: {company_id}")
-            create_dataset(name, company_id)
+            try:
+                create_dataset(name, company_id)
+                messages.success(request, f"Face embeddings dataset created for {name}.")
+            except Exception as e:
+                messages.error(request, f"Failed to create dataset: {str(e)}")
+                return redirect('register_face')  # Redirect back on failure
             return redirect('view_face_embeddings_list')
+        else:
+            messages.error(request, "Invalid form submission. Please correct the errors below.")
     else:
         form = FaceEmbeddingsForm()
 
@@ -926,7 +932,11 @@ def add_face_embeddings(request):
 # Path to Haarcascade file
 HAAR_CASCADE_PATH = os.path.join(settings.BASE_DIR, "core", "static", "haarcascades", "haarcascade_frontalface_default.xml")
 
+import tkinter as tk
+from tkinter import messagebox
+
 def create_dataset(name, company_id):
+    
     # Create directory for the user inside the static folder
     directory = os.path.join(settings.BASE_DIR, 'core', 'static', 'registered_faces', f"{name}_{company_id}")
     os.makedirs(directory, exist_ok=True)
@@ -948,6 +958,7 @@ def create_dataset(name, company_id):
     # --- Video Stream ---
     print("[INFO] Initializing Video stream")
     #0 for laptop webcam, 1 for external (ONLY ME)
+    #use 1 if laptop and webcam active at the same time
     vs = VideoStream(src=0).start()
     sampleNum = 0
 
@@ -1169,10 +1180,14 @@ def train_dataset(request):
     encoder_save_path = os.path.join(model_dir, "classes.npy")  # Use os.path.join and model_dir
     np.save(encoder_save_path, encoder.classes_)
 
-    messages.success(request, f'Training Complete.')
-    print("Training Complete!")
-    return render(request, "base.html")
+    if X and y:
+        # Save to pickle or continue with training logic here
+        # For example: save_embeddings(X, y)
+        messages.success(request, "Training completed successfully.")
+    else:
+        messages.warning(request, "No valid images found for training.")
 
+    return redirect('view_face_embeddings_list')
 
 # Load the trained SVM model and label encoder (global variables)
 _loaded_model = None
@@ -1208,14 +1223,7 @@ def predict_face(request):
     face_detection = mp_face_detection.FaceDetection(min_detection_confidence=0.5)
     if request.method == "POST":
         time.sleep(1.0)
-
-        recognized_employee = None
-        attendance_recorded = False
-        face_detected_time = None
-        delay_duration = 1.5
-
         vs = VideoStream(src=0).start()
-        time.sleep(1.0)
 
         recognized_employee = None
         attendance_recorded = False
@@ -1338,7 +1346,7 @@ def predict_face(request):
                 face_detected_time = None
                 face_detected_time = None
 
-            cv2.imshow("Real-time Face Recognition", frame)
+            cv2.imshow("Attendance Tracking - Press 'q' to exit", frame)
             key = cv2.waitKey(1) & 0xFF
             if key == ord("q") or exit_loop:
                 break
@@ -1365,11 +1373,14 @@ def delete_face_embeddings(request, employee_id):
             # Delete folder if it exists
             if os.path.exists(embed_dir):
                 shutil.rmtree(embed_dir)
+                messages.success(request, f"Face embeddings for {name} have been deleted.")
+            else:
+                messages.warning(request, f"No face embeddings found for {name}.")
                 
-            response = HttpResponse()
-            response["HX-Redirect"] = "/face_embeddings/view/"  # adjust to your actual view URL
-            return response
+            return redirect('view_face_embeddings_list')
+        
         except Employee.DoesNotExist:
+            messages.error(request, "Employee not found.")
             raise Http404("Employee not found")
 
     return HttpResponse(status=405)  # Method not allowed
