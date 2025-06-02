@@ -62,6 +62,58 @@ from reportlab.pdfgen import canvas
 from django.template.loader import render_to_string
 from weasyprint import HTML
 from django.http import HttpResponse
+from django.utils.dateparse import parse_date
+
+def leave_summary_pdf(request):
+    start_date = parse_date(request.GET.get('start_date'))
+    end_date = parse_date(request.GET.get('end_date'))
+
+    if not start_date or not end_date:
+        return HttpResponse("Invalid dates provided.", status=400)
+
+    # Get all leaves (you could optimize this if you expect a huge dataset)
+    all_leaves = LeaveRequest.objects.all()
+
+    # Filter manually
+    filtered_leaves = []
+    for leave in all_leaves:
+        if not leave.leave_dates:
+            continue
+
+        for d in leave.leave_dates:
+            d_obj = parse_date(d) if isinstance(d, str) else d
+            if start_date <= d_obj <= end_date:
+                filtered_leaves.append(leave)
+                break  # No need to check other dates for this leave
+
+    # Prepare serialized data for PDF rendering
+    serialized_leaves = []
+    for leave in filtered_leaves:
+        serialized_leaves.append({
+            'employee': leave.employee,
+            'leave_number': leave.leave_number,
+            'leave_dates': ', '.join(
+                d.strftime('%Y-%m-%d') if hasattr(d, 'strftime') else str(d)
+                for d in leave.leave_dates or []
+            ),
+            'reason_for_leave': leave.reason_for_leave,
+            'leave_type': leave.leave_type,
+            'remarks': leave.remarks,
+            'status': leave.status,
+            'paid_dates': leave.paid_dates,
+            'unpaid_dates': leave.unpaid_dates,
+        })
+
+    html = render_to_string("leave_summary_template.html", {
+        'leaves': serialized_leaves,
+        'start_date': start_date.strftime('%Y-%m-%d'),
+        'end_date': end_date.strftime('%Y-%m-%d')
+    })
+    pdf_file = HTML(string=html).write_pdf()
+
+    response = HttpResponse(pdf_file, content_type='application/pdf')
+    response['Content-Disposition'] = 'inline; filename="leave-summary.pdf"'
+    return response
 
 def leave_pdf_view(request, pk):
     leave = get_object_or_404(LeaveRequest, pk=pk)

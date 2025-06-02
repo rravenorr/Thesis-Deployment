@@ -44,6 +44,8 @@ urlpatterns = [
     path('employee/<int:pk>/reset-password/', views.reset_employee_password, name='reset_employee_password'),
     path('leave/<int:pk>/', views.leave_request_detail, name='leave_request_detail'),
     path('leave/<int:pk>/pdf/', views.leave_pdf_view, name='leave_pdf'),
+    path('leave/summary/pdf/', views.leave_summary_pdf, name='leave_summary_pdf'),
+
 
 
     

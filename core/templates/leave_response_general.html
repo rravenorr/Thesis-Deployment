@@ -34,8 +34,6 @@
                                     <td>{{ leave.leave_number }}</td>
                                     <td>{{ leave.employee }}</td>
                                     <td>{{ leave.get_leave_type_display }}</td>
-                                    {% comment %} <td>{{ leave.start_of_leave }}</td>
-                                    <td>{{ leave.end_of_leave }}</td> {% endcomment %}
                                     <td>{{ leave.status }}</td>
                                     <td>{{ leave.created_at|date:"M d, Y" }}</td>
                                     <td>
@@ -60,8 +58,29 @@
             {% endif %}
         </div>
     </div>
-</div>
     
+    
+</div>
+
+<form method="get" action="{% url 'leave_summary_pdf' %}" target="_blank">
+    <div class="row px-5">
+        <div class="p-2 d-flex w-100">
+            <div class="d-flex flex-column border border-dark-subtle p-4 rounded shadow w-100 bg-light">
+                <h4 class="mb-4">Generate leave summary</h4>
+                <div class="d-flex flex-column border border-dark-subtle p-4 rounded shadow w-100 bg-light">
+                    <label for="start_date">Start Date</label>
+                    <input type="date" id="start_date" name="start_date" class="form-control mb-2" required>
+
+                    <label for="end_date">End Date</label>
+                    <input type="date" id="end_date" name="end_date" class="form-control mb-3" required>
+
+                    <button type="submit" class="btn btn-sm btn-outline-primary">Generate PDF</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</form>
+
     {% endblock %}
 </body>
 </html>

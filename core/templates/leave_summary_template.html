@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <title>Leave Summary</title>
+    <style>
+        @page {
+            margin: 20mm 15mm; /* Smaller page margins for PDF */
+        }
+
+        body {
+            font-family: Arial, sans-serif;
+            font-size: 12px;
+            margin: 0;
+            padding: 0;
+        }
+
+        h2, p {
+            text-align: center;
+            margin: 0;
+        }
+
+        p.subheading {
+            margin: 15px 0 20px 0;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 12px;
+        }
+
+        th, td {
+            border: 1px solid #444;
+            padding: 6px;
+            text-align: left;
+        }
+
+        th {
+            background-color: #f0f0f0;
+        }
+
+        .summary {
+            text-align: left;
+            margin: 10px 0 20px 0;
+            font-size: 14px;
+        }
+    </style>
+</head>
+<body>
+    <h2>Malasaga Trading Corporation</h2>
+    <p class="subheading"><strong>Employee Leave Summary</strong></p>
+    <p class="summary"><strong>From:</strong> {{ start_date }} &nbsp;&nbsp; <strong>To:</strong> {{ end_date }}</p>
+
+    <table>
+        <thead>
+            <tr>
+                <th>Employee</th>
+                <th>Leave Type</th>
+                <th>Leave Dates</th>
+                <th>Status</th>
+                <th>Paid Days</th>
+                <th>Unpaid Days</th>
+            </tr>
+        </thead>
+        <tbody>
+        {% for leave in leaves %}
+            <tr>
+                <td>{{ leave.employee }}</td>
+                <td>{{ leave.leave_type }}</td>
+                <td>{{ leave.leave_dates }}</td>
+                <td>{{ leave.status }}</td>
+                <td>{{ leave.paid_dates }}</td>
+                <td>{{ leave.unpaid_dates }}</td>
+            </tr>
+        {% empty %}
+            <tr><td colspan="6">No leave requests in this range.</td></tr>
+        {% endfor %}
+        </tbody>
+    </table>
+</body>
+</html>
