@@ -853,6 +853,20 @@ def add_employee_attendance(request):
         'attendance_form': form
     })
 
+def get_shifts_for_employee(request):
+    employee_id = request.GET.get('employee_id')
+    if employee_id:
+        shifts = Shift.objects.filter(employee_id=employee_id).order_by('shift_date', 'shift_start')
+        shift_list = [
+            {
+                'id': shift.id,
+                'text': f"{shift.shift_date} ({shift.shift_start} to {shift.shift_end})"
+            }
+            for shift in shifts
+        ]
+        return JsonResponse(shift_list, safe=False)
+    return JsonResponse([], safe=False)
+
 @hr_only
 @login_required
 def employee_dtr(request, pk):
@@ -1273,6 +1287,7 @@ def load_trained_model():
 "OpenFace" (very fast, less accurate)
 """
 
+#ADD A SUCCESS PROMPT WHEN DETECTED AND RECORDED ATTENDANCE LATER WHILE WAITING FOR DEFENSE
 def predict_face(request):
     from deepface import DeepFace
     # Call Model
@@ -1309,7 +1324,6 @@ def predict_face(request):
             if results.detections:
                 if face_detected_time is None:
                     face_detected_time = time.time()
-                    face_detected_time = time.time()
 
                 for detection in results.detections:
                     bboxC = detection.location_data.relative_bounding_box
@@ -1325,7 +1339,6 @@ def predict_face(request):
 
                             probabilities = svc.predict_proba(embedding)[0]
                             predicted_class_index = np.argmax(probabilities)
-                            confidence_threshold = 0.7
                             confidence_threshold = 0.7
 
                             confidence = probabilities[predicted_class_index]
@@ -1370,6 +1383,7 @@ def predict_face(request):
                                         attendance.time_out = now
                                         attendance.save()
                                         print("Time-out recorded.")
+                                        messages.success(request, f"Time-out recorded for {employee}.")
                                         attendance_recorded = True
                                         exit_loop = True
                                         break
@@ -1384,6 +1398,7 @@ def predict_face(request):
                                         time_in=now
                                     )
                                     print("Time-in recorded.")
+                                    messages.success(request, f"Time-in recorded for {employee}.")
                                     attendance_recorded = True
                                     exit_loop = True
                                     break
@@ -1400,7 +1415,6 @@ def predict_face(request):
                             print(f"Error during feature extraction or prediction: {e}")
 
             else:
-                face_detected_time = None
                 face_detected_time = None
 
             cv2.imshow("Attendance Tracking - Press 'q' to exit", frame)

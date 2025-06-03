@@ -69,7 +69,44 @@
         </div>
     </div>
 </div>
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+        const employeeSelect = document.getElementById("id_employee");
+        const shiftSelect = document.getElementById("id_shift");
 
+        employeeSelect.addEventListener("change", function () {
+            const employeeId = this.value;
+
+            if (employeeId) {
+                fetch("{% url 'get_shifts_for_employee' %}?employee_id=" + employeeId)
+                    .then(response => response.json())
+                    .then(data => {
+                        // Clear existing options
+                        shiftSelect.innerHTML = "";
+
+                        // Add default option
+                        const defaultOption = document.createElement("option");
+                        defaultOption.value = "";
+                        defaultOption.textContent = "Select a shift";
+                        shiftSelect.appendChild(defaultOption);
+
+                        // Add new options
+                        data.forEach(shift => {
+                            const option = document.createElement("option");
+                            option.value = shift.id;
+                            option.textContent = shift.text;
+                            shiftSelect.appendChild(option);
+                        });
+                    })
+                    .catch(error => {
+                        console.error("Error fetching shifts:", error);
+                    });
+            } else {
+                shiftSelect.innerHTML = "<option value=''>Select a shift</option>";
+            }
+        });
+    });
+</script>
 <!-- Flatpickr JS & CSS -->
 <link rel="stylesheet" href="{% static 'css/flatpickr.min.css' %}">
 <script src="{% static 'js/flatpickr.js' %}"></script>

@@ -20,7 +20,7 @@ from django.urls import path
 from core import views
 from django.conf import settings
 from django.conf.urls.static import static
-from django.urls import path
+from django.urls import path,include
 from core.views import AccountSettingsView
 
 
@@ -48,7 +48,7 @@ urlpatterns = [
     path('employee/<int:employee_id>/dtr/<str:start_date>/<str:end_date>/pdf/', views.download_dtr_pdf, name='download_dtr_pdf'),
 
 
-
+    path('ajax/get-shifts/', views.get_shifts_for_employee, name='get_shifts_for_employee'),
     
     #! CRUD operations for employees | HR side
     path('employee/view/', views.EmployeeHTMxTableView.as_view(), name='view_employee_list'), 

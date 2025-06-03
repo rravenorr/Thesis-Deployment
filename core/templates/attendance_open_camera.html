@@ -35,6 +35,13 @@
 
 <div class="full-bg">
   <div class="content-box">
+    {% if messages %}
+      <ul class="messages">
+        {% for message in messages %}
+          <li {% if message.tags %} class="{{ message.tags }}"{% endif %}>{{ message }} </li>
+        {% endfor %}
+      </ul>
+    {% endif %}
     <!-- Title -->
     <img src="{% static 'img/Malasaga Trading Corporation Logo 2.png' %}" alt="Malasaga Title" class="img-fluid mb-4" style="max-width: 100%; height: auto;">
 
