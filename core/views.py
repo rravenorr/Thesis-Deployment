@@ -14,6 +14,7 @@ import imutils
 from django.conf import settings
 from datetime import datetime, date, timedelta
 from sklearn.model_selection import train_test_split
+from .utils import update_leave_credits
 
 import csv
 import os
@@ -423,6 +424,8 @@ def submit_leave_request(request):
     return render(request, 'leave_request_form.html', context)
 
 
+
+
 def custom_login_view(request):
     if request.user.is_authenticated:
         return redirect('dashboard')
@@ -436,10 +439,16 @@ def custom_login_view(request):
             user = authenticate(request, username=username, password=password)
             if user is not None:
                 login(request, user)
+
+                # Recalculate leave credits if today is Jan 1 or later in the year and not yet updated this year
+                if hasattr(user, 'employee'):
+                    update_leave_credits(user.employee)
+
                 return redirect('dashboard')
         messages.error(request, "Invalid username or password.")
 
     return render(request, 'base.html', {'form': form})
+
 
 def custom_logout_view(request):
     logout(request) 
@@ -862,7 +871,7 @@ def add_employee(request):
 
             # Calculate number of days since hired
             days_since_hired = (date.today() - date_hired).days
-            print(days_since_hired)
+
             # Assign leave credits based on days since hired
             if 365 <= days_since_hired <= 730:
                 employee.leave_credits = 2

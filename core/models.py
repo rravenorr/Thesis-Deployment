@@ -133,6 +133,8 @@ class Employee(models.Model):
     sex = models.CharField(max_length=20, choices=SEX_CHOICES, blank=False)
     role = models.CharField(max_length=20, choices=ROLE_CHOICES, default='Regular Employee', blank=False)
     status = models.CharField(max_length=10, choices=STATUS_CHOICES, default='Active')
+    last_credit_update = models.DateField(null=True, blank=True)
+
 
     department = models.ForeignKey(
         Department,
