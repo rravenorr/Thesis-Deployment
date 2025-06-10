@@ -253,7 +253,11 @@ def leave_summary_pdf(request):
 
 def leave_pdf_view(request, pk):
     leave = get_object_or_404(LeaveRequest, pk=pk)
-    html = render_to_string("leave_pdf_template.html", {'leave': leave})
+    leave_days = len(leave.leave_dates)
+    html = render_to_string("leave_pdf_template.html", {
+    'leave': leave,
+    'leave_days': leave_days
+    })
     pdf_file = HTML(string=html).write_pdf()
 
     messages.success(request, f"PDF generated for leave request #{leave.leave_number}.")
