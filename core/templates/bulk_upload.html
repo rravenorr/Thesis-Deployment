@@ -1,0 +1,28 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container py-5">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="card shadow rounded-4">
+                <div class="card-header bg-primary text-white rounded-top-4">
+                    <h4 class="mb-0">📁 Bulk Upload Employees</h4>
+                </div>
+                <div class="card-body p-4">
+                    <form method="post" enctype="multipart/form-data">
+                        {% csrf_token %}
+                        <div class="mb-4">
+                            <label for="csv_file" class="form-label fw-semibold">Upload CSV File</label>
+                            <input type="file" name="csv_file" id="csv_file" class="form-control" accept=".csv" required>
+                            <div class="form-text">Only .csv files are accepted. Make sure headers match the format.</div>
+                        </div>
+                        <div class="d-grid">
+                            <button type="submit" class="btn btn-primary btn-lg rounded-pill">🚀 Upload Employees</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

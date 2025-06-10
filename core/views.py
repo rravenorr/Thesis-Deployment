@@ -15,6 +15,7 @@ from django.conf import settings
 from datetime import datetime, date, timedelta
 from sklearn.model_selection import train_test_split
 
+import csv
 import os
 import cv2
 import time
@@ -65,6 +66,85 @@ from weasyprint import HTML
 from django.http import HttpResponse
 from django.utils.dateparse import parse_date
 from collections import defaultdict
+
+
+def bulk_upload_employees(request):
+    if request.method == 'POST' and request.FILES['csv_file']:
+        csv_file = request.FILES['csv_file']
+        decoded_file = csv_file.read().decode('utf-8').splitlines()
+        reader = csv.DictReader(decoded_file)
+        created_count = 0
+        errors = []
+
+        for row in reader:
+            try:
+                company_id = row['company_id']
+                first_name = row['first_name']
+                middle_name = row.get('middle_name', '')
+                last_name = row['last_name']
+                sex = row['sex']
+                role = row['role']
+                contact_number = row['contact_number']
+                date_employed = datetime.strptime(row['date_employed'], '%Y-%m-%d').date()
+                department_name = row.get('department', None)
+
+                department = None
+                if department_name:
+                    department = Department.objects.filter(name__iexact=department_name).first()
+
+                days_since_hired = (date.today() - date_employed).days
+                lc = lc2 = 0
+                if 365 <= days_since_hired <= 730:
+                    lc, lc2 = 2, 3
+                elif 731 <= days_since_hired <= 1095:
+                    lc, lc2 = 3, 3
+                elif 1096 <= days_since_hired <= 1460:
+                    lc, lc2 = 4, 4
+                elif 1461 <= days_since_hired <= 1825:
+                    lc, lc2 = 5, 5
+                elif 1826 <= days_since_hired <= 2190:
+                    lc, lc2 = 6, 6
+                elif 2191 <= days_since_hired <= 2555:
+                    lc, lc2 = 7, 7
+                elif days_since_hired > 2555:
+                    lc, lc2 = 8, 7
+
+                # Create User
+                username = f"{first_name.lower()}{last_name.lower()}".replace(" ", "")
+                user = User.objects.create_user(
+                    username=username,
+                    password=str(company_id),
+                    first_name=first_name,
+                    last_name=last_name
+                )
+
+                employee = Employee.objects.create(
+                    company_id=company_id,
+                    first_name=first_name,
+                    middle_name=middle_name,
+                    last_name=last_name,
+                    sex=sex,
+                    role=role,
+                    contact_number=contact_number,
+                    date_employed=date_employed,
+                    leave_credits=lc,
+                    leave_credits2=lc2,
+                    user_account=user,
+                    department=department,
+                    status='Active'
+                )
+                created_count += 1
+
+            except Exception as e:
+                errors.append(f"Error in row {reader.line_num}: {e}")
+
+        messages.success(request, f"{created_count} employees uploaded successfully.")
+        if errors:
+            messages.error(request, "Some rows could not be processed:\n" + "\n".join(errors))
+
+        return redirect('view_employee_list')
+
+    return render(request, 'bulk_upload.html')
 
 def download_dtr_pdf(request, employee_id, start_date, end_date):
     employee = get_object_or_404(Employee, pk=employee_id)
@@ -836,6 +916,7 @@ def add_employee(request):
         'users': users,
         'departments': departments
     })
+    
 @hr_only
 def add_employee_attendance(request):
     if request.method == 'POST':
@@ -1032,7 +1113,7 @@ def create_dataset(name, company_id):
     print("[INFO] Initializing Video stream")
     #0 for laptop webcam, 1 for external (ONLY ME)
     #use 1 if laptop and webcam active at the same time
-    vs = VideoStream(src=0).start()
+    vs = VideoStream(src=1).start()
     sampleNum = 0
 
     previous_frame = None
@@ -1299,7 +1380,7 @@ def predict_face(request):
     face_detection = mp_face_detection.FaceDetection(min_detection_confidence=0.5)
     if request.method == "POST":
         time.sleep(1.0)
-        vs = VideoStream(src=0).start()
+        vs = VideoStream(src=1).start()
 
         recognized_employee = None
         attendance_recorded = False

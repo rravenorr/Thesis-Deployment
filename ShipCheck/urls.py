@@ -46,6 +46,7 @@ urlpatterns = [
     path('leave/<int:pk>/pdf/', views.leave_pdf_view, name='leave_pdf'),
     path('leave/summary/pdf/', views.leave_summary_pdf, name='leave_summary_pdf'),
     path('employee/<int:employee_id>/dtr/<str:start_date>/<str:end_date>/pdf/', views.download_dtr_pdf, name='download_dtr_pdf'),
+    path('employees/bulk-upload/', views.bulk_upload_employees, name='bulk_upload_employees'),
 
 
     path('ajax/get-shifts/', views.get_shifts_for_employee, name='get_shifts_for_employee'),
