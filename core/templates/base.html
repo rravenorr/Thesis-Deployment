@@ -157,15 +157,34 @@
         <div class="container-fluid mt-5 d-flex flex-column p-0">
             <div class="container-fluid d-flex flex-column p-4">
                     {% if messages %}
-                        <div class="container mt-3">
-                        {% for message in messages %}
-                            <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
-                            {{ message }}
-                            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                    <!-- Modal -->
+                    <div class="modal fade" id="messageModal" tabindex="-1" aria-labelledby="messageModalLabel" aria-hidden="true">
+                        <div class="modal-dialog modal-dialog-centered">
+                            <div class="modal-content shadow rounded">
+                                <div class="modal-header bg-primary text-white rounded-top">
+                                    <h5 class="modal-title" id="messageModalLabel">Notification</h5>
+                                </div>
+                                <div class="modal-body fs-5">
+                                    {% for message in messages %}
+                                        <div class="text-{{ message.tags }}">{{ message }}</div>
+                                    {% endfor %}
+                                </div>
+                                <div class="modal-footer">
+                                    <button type="button" class="btn btn-primary rounded-pill" data-bs-dismiss="modal">OK</button>
+                                </div>
                             </div>
-                        {% endfor %}
                         </div>
-                    {% endif %}
+                    </div>
+
+                    <script>
+                        document.addEventListener('DOMContentLoaded', function () {
+                            var messageModal = new bootstrap.Modal(document.getElementById('messageModal'));
+                            messageModal.show();
+                        });
+                    </script>
+                {% endif %}
+
+                    
                 {% block content %}
                 {% endblock %}
             </div>
